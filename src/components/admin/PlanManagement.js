@@ -1,0 +1,136 @@
+import React, { useState } from 'react';
+import AdminNav from './AdminNav';
+
+const initialPlans = [
+  {
+    id: 'basic',
+    name: 'ベーシック',
+    price: 2980,
+    features: [
+      '月1回の定期検診',
+      'AIチャット相談',
+      '基本的な予防ケア',
+      '治療計画の確認',
+      'オンライン予約'
+    ]
+  },
+  {
+    id: 'silver',
+    name: 'シルバー',
+    price: 5980,
+    features: [
+      'ベーシックプランの全機能',
+      'ファストパス予約',
+      '専門スタッフ指名（割引あり）',
+      'プロクリーニング年1回',
+      '歯科グッズ10%割引'
+    ]
+  },
+  {
+    id: 'gold',
+    name: 'ゴールド',
+    price: 9980,
+    features: [
+      'シルバープランの全機能',
+      '専門スタッフ指名無料',
+      'VIP優先予約',
+      'ホワイトニング年2回',
+      '歯科グッズ20%割引',
+      '口腔ケア用品プレゼント',
+      '特別特典: 24時間緊急対応, 歯科衛生士アサイン, 特別診療室利用可'
+    ]
+  }
+];
+
+const PlanManagement = () => {
+  const [plans, setPlans] = useState(initialPlans);
+  const [editIdx, setEditIdx] = useState(null);
+  const [editPlan, setEditPlan] = useState(null);
+
+  const handleEdit = (idx) => {
+    setEditIdx(idx);
+    setEditPlan({ ...plans[idx], features: [...plans[idx].features] });
+  };
+
+  const handleSave = () => {
+    setPlans(plans.map((p, i) => (i === editIdx ? editPlan : p)));
+    setEditIdx(null);
+    setEditPlan(null);
+  };
+
+  const handleCancel = () => {
+    setEditIdx(null);
+    setEditPlan(null);
+  };
+
+  const handleFeatureChange = (i, value) => {
+    const newFeatures = [...editPlan.features];
+    newFeatures[i] = value;
+    setEditPlan({ ...editPlan, features: newFeatures });
+  };
+
+  const handleAddFeature = () => {
+    setEditPlan({ ...editPlan, features: [...editPlan.features, '新しい特典'] });
+  };
+
+  const handleRemoveFeature = (i) => {
+    setEditPlan({ ...editPlan, features: editPlan.features.filter((_, idx) => idx !== i) });
+  };
+
+  return (
+    <AdminNav>
+      <div className="py-6">
+        <div className="max-w-4xl mx-auto px-4">
+          <h1 className="text-2xl font-bold mb-6">サブスクプラン管理</h1>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {plans.map((plan, idx) => (
+              <div key={plan.id} className="bg-white rounded-xl shadow p-6 flex flex-col">
+                <h2 className="text-xl font-bold mb-2">{plan.name}</h2>
+                <div className="text-2xl font-extrabold mb-2 text-gray-900">¥{plan.price.toLocaleString()}<span className="text-base font-medium text-gray-500">/月</span></div>
+                <ul className="mb-4 space-y-2">
+                  {plan.features.map((f, i) => (
+                    <li key={i} className="text-gray-700 flex items-center">
+                      <span className="text-green-500 mr-2">✔</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                {editIdx === idx ? (
+                  <>
+                    <input
+                      type="number"
+                      className="w-full border px-2 py-1 rounded mb-2"
+                      value={editPlan.price}
+                      onChange={e => setEditPlan({ ...editPlan, price: Number(e.target.value) })}
+                    />
+                    <div className="mb-2">
+                      {editPlan.features.map((f, i) => (
+                        <div key={i} className="flex items-center mb-1">
+                          <input
+                            type="text"
+                            className="flex-1 border px-2 py-1 rounded"
+                            value={f}
+                            onChange={e => handleFeatureChange(i, e.target.value)}
+                          />
+                          <button className="ml-2 text-red-500" onClick={() => handleRemoveFeature(i)}>削除</button>
+                        </div>
+                      ))}
+                      <button className="text-blue-500 mt-2" onClick={handleAddFeature}>+ 特典を追加</button>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button className="btn-primary flex-1" onClick={handleSave}>保存</button>
+                      <button className="btn-secondary flex-1" onClick={handleCancel}>キャンセル</button>
+                    </div>
+                  </>
+                ) : (
+                  <button className="btn-secondary mt-auto" onClick={() => handleEdit(idx)}>編集</button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </AdminNav>
+  );
+};
+
+export default PlanManagement; 
