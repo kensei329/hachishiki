@@ -5,7 +5,7 @@ const initialPlans = [
   {
     id: 'basic',
     name: 'ベーシック',
-    price: 2980,
+    price: 980,
     features: [
       '月1回の定期検診',
       'AIチャット相談',
@@ -16,8 +16,8 @@ const initialPlans = [
   },
   {
     id: 'silver',
-    name: 'シルバー',
-    price: 5980,
+    name: 'Pro',
+    price: 1980,
     features: [
       'ベーシックプランの全機能',
       'ファストパス予約',
@@ -28,10 +28,10 @@ const initialPlans = [
   },
   {
     id: 'gold',
-    name: 'ゴールド',
-    price: 9980,
+    name: 'Pro Max',
+    price: 2980,
     features: [
-      'シルバープランの全機能',
+      'Proプランの全機能',
       '専門スタッフ指名無料',
       'VIP優先予約',
       'ホワイトニング年2回',

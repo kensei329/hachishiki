@@ -7,7 +7,7 @@ const ForceJoinSettings = () => {
     {
       id: 1,
       treatmentName: 'インプラント',
-      planType: '8クラブ シルバー',
+      planType: '歯知クラブ Pro',
       isActive: true,
       description: 'インプラント施術完了後に自動加入',
       createdDate: '2024/01/15'
@@ -15,7 +15,7 @@ const ForceJoinSettings = () => {
     {
       id: 2,
       treatmentName: 'ホワイトニング（10回以上）',
-      planType: '8クラブ ベーシック',
+      planType: '歯知クラブ ベーシック',
       isActive: true,
       description: 'ホワイトニング10回実施後に自動加入',
       createdDate: '2024/02/01'
@@ -23,7 +23,7 @@ const ForceJoinSettings = () => {
     {
       id: 3,
       treatmentName: '矯正治療',
-      planType: '8クラブ シルバー',
+      planType: '歯知クラブ Pro',
       isActive: false,
       description: '矯正治療開始時に自動加入（現在停止中）',
       createdDate: '2024/03/10'
@@ -32,7 +32,7 @@ const ForceJoinSettings = () => {
 
   const [newRule, setNewRule] = useState({
     treatmentName: '',
-    planType: '8クラブ ベーシック',
+    planType: '歯知クラブ ベーシック',
     description: '',
     isActive: true
   });
@@ -40,7 +40,7 @@ const ForceJoinSettings = () => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  const planOptions = ['8クラブ ライト', '8クラブ ベーシック', '8クラブ シルバー'];
+  const planOptions = ['歯知クラブ ライト', '歯知クラブ ベーシック', '歯知クラブ Pro'];
 
   const handleAddRule = () => {
     if (newRule.treatmentName && newRule.description) {
@@ -52,7 +52,7 @@ const ForceJoinSettings = () => {
       }]);
       setNewRule({
         treatmentName: '',
-        planType: '8クラブ ベーシック',
+        planType: '歯知クラブ ベーシック',
         description: '',
         isActive: true
       });

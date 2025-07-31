@@ -9,7 +9,7 @@ const AIChat = () => {
     {
       id: 1,
       type: 'bot',
-      content: 'こんにちは！AI医師です。歯に関するご相談がございましたらお聞かせください。',
+      content: 'こんにちは！AI歯科医です。歯に関するご相談がございましたらお聞かせください。',
       timestamp: '14:30'
     },
     {
@@ -65,7 +65,7 @@ const AIChat = () => {
         <div className="flex items-center">
           <Bot className="w-6 h-6 mr-2" />
           <div>
-            <h1 className="text-lg font-semibold">AI医師</h1>
+            <h1 className="text-lg font-semibold">AI歯科医</h1>
             <p className="text-purple-200 text-sm">オンライン</p>
           </div>
         </div>

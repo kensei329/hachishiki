@@ -4,7 +4,7 @@ import { Printer, Palette, Download, Eye, Save } from 'lucide-react';
 
 const PopPrintSettings = () => {
   const [popSettings, setPopSettings] = useState({
-    title: 'はち歯科医院の\n8クラブ始まります！',
+    title: 'はち歯科医院の\n歯知クラブ始まります！',
     subtitle: '月額8,000円で特典いっぱい',
     features: [
       '指名無料 5回',

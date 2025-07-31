@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, Gift, Phone, ArrowUpCircle, Bot } from 'lucide-react';
+import { MessageCircle, Gift, Phone, ArrowUpCircle, Bot, Settings } from 'lucide-react';
 
 const DENTIST_PHONE = '092-123-4567'; // 仮の電話番号
 
@@ -10,8 +10,8 @@ const RichMenu = () => {
   // チャット履歴サンプル
   const messages = [
     { type: 'bot', icon: <Bot className="w-6 h-6 text-blue-500" />, text: 'こんにちは！ご予約やご相談はお気軽にどうぞ。' },
-    { type: 'user', text: 'AI医師相談を使いたいです。' },
-    { type: 'bot', icon: <Bot className="w-6 h-6 text-blue-500" />, text: 'AI医師相談は下のボタンからどうぞ！' },
+    { type: 'user', text: 'AI歯科医相談を使いたいです。' },
+    { type: 'bot', icon: <Bot className="w-6 h-6 text-blue-500" />, text: 'AI歯科医相談は下のボタンからどうぞ！' },
   ];
 
   // メニュー
@@ -19,28 +19,28 @@ const RichMenu = () => {
     {
       id: 'ai',
       icon: <MessageCircle className="w-7 h-7" />, 
-      label: 'AI医師相談',
+      label: 'AI歯科医に相談する',
       color: 'bg-purple-600',
       action: () => navigate('/patient/chat')
     },
     {
       id: 'benefit',
       icon: <Gift className="w-7 h-7" />, 
-      label: '8クラブ特典',
+      label: '歯知クラブ特典を使う',
       color: 'bg-orange-500',
       action: () => navigate('/patient/home')
     },
     {
       id: 'phone',
       icon: <Phone className="w-7 h-7" />, 
-      label: '電話',
+      label: '歯科医院に電話する',
       color: 'bg-green-600',
       action: () => window.location.href = `tel:${DENTIST_PHONE}`
     },
     {
       id: 'upgrade',
       icon: <ArrowUpCircle className="w-7 h-7" />, 
-      label: 'アップグレード',
+      label: 'アップグレードする',
       color: 'bg-yellow-500',
       action: () => navigate('/patient/plans')
     },
@@ -95,12 +95,20 @@ const RichMenu = () => {
         </div>
       </div>
 
-      {/* メッセージ入力風 */}
+      {/* メッセージ入力風 + 設定ボタン */}
       <div className="bg-white border-t border-gray-200 p-3">
         <div className="flex items-center space-x-2">
           <div className="flex-1 bg-gray-100 rounded-full px-4 py-2">
             <span className="text-gray-500 text-sm">メッセージを入力</span>
           </div>
+          {/* 設定ボタン（最小限の枠） */}
+          <button
+            onClick={() => navigate('/patient/settings')}
+            className="bg-gray-500 hover:bg-gray-600 text-white p-2 rounded-full transition-colors flex items-center justify-center"
+            title="設定"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </div>

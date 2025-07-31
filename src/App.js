@@ -7,6 +7,7 @@ import PatientHome from './components/patient/PatientHome';
 import AIChat from './components/patient/AIChat';
 import RichMenu from './components/patient/RichMenu';
 import Plans from './components/patient/Plans';
+import Settings from './components/patient/Settings';
 
 // 歯科医院向けコンポーネント
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -22,7 +23,7 @@ const TopPage = () => {
   const patientUrls = [
     { path: '/patient/auth', name: '初回認証画面', description: '患者番号・パスコード入力' },
     { path: '/patient/home', name: 'ホーム画面', description: 'サブスク加入状況・特典一覧' },
-    { path: '/patient/chat', name: 'AIチャット画面', description: 'AI医師との相談機能' },
+    { path: '/patient/chat', name: 'AIチャット画面', description: 'AI歯科医との相談機能' },
     { path: '/patient/richmenu', name: 'LINEリッチメニュー', description: 'LINE公式アカウント風UI' },
   ];
 
@@ -189,6 +190,8 @@ function App() {
         <Route path="/patient/home" element={<PatientHome />} />
         <Route path="/patient/chat" element={<AIChat />} />
         <Route path="/patient/richmenu" element={<RichMenu />} />
+        {/* 患者向け設定画面 */}
+        <Route path="/patient/settings" element={<Settings />} />
         {/* 歯科医院向けWeb管理画面 */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/benefits" element={<BenefitSettings />} />

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MessageCircle, Sparkles, Calculator } from 'lucide-react';
 
 const plans = [
   {
@@ -21,7 +22,7 @@ const plans = [
   },
   {
     id: 'silver',
-    name: 'シルバー',
+    name: 'Pro',
     price: 1980,
     color: 'border-blue-400',
     features: [
@@ -38,11 +39,11 @@ const plans = [
   },
   {
     id: 'gold',
-    name: 'ゴールド',
+    name: 'Pro Max',
     price: 2980,
     color: 'border-yellow-400',
     features: [
-      'シルバープランの全機能',
+      'Proプランの全機能',
       '専門スタッフ指名無料',
       'VIP優先予約',
       'ホワイトニング年2回',
@@ -75,7 +76,7 @@ const Plans = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-10 px-2">
       <div className="max-w-3xl mx-auto text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">8クラブ メンバーシップ</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">歯知クラブ メンバーシップ</h1>
         <p className="text-gray-600 mb-4">あなたの口腔健康を定期的にサポートする、プレミアムな歯科ケアサービスです。<br />月額制で安心の継続ケアを受けられます。</p>
         <div className="flex flex-col items-center mb-4">
           <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-medium mb-2">
@@ -91,6 +92,93 @@ const Plans = () => {
           </div>
         </div>
       </div>
+
+      {/* セラミック治療お得度PR */}
+      <div className="max-w-4xl mx-auto mb-12 px-4">
+        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-3xl p-8 shadow-xl">
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center mb-4">
+              <Sparkles className="w-8 h-8 text-orange-500 mr-3" />
+              <h2 className="text-2xl font-bold text-orange-800">セラミック治療をお考えの方へ</h2>
+            </div>
+            <p className="text-orange-700 text-lg font-medium">
+              歯知クラブなら、セラミック治療がこんなにお得！
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* 通常料金 */}
+            <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
+              <div className="text-center mb-4">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">💸 通常料金</h3>
+                <div className="text-gray-600 text-sm mb-3">（歯知クラブ未加入の場合）</div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+                  <span className="text-gray-700">セラミック 1本</span>
+                  <span className="font-bold text-gray-800">¥70,000</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+                  <span className="text-gray-700">セラミック 2本</span>
+                  <span className="font-bold text-gray-800">¥140,000</span>
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-lg font-bold text-gray-800">合計</span>
+                  <span className="text-2xl font-bold text-red-600">¥140,000</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 歯知クラブ料金 */}
+            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 border-2 border-blue-400 shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-400 rounded-full -mr-10 -mt-10 opacity-20"></div>
+              <div className="relative z-10">
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold text-white mb-2">✨ 歯知クラブ Pro以上</h3>
+                  <div className="text-blue-100 text-sm mb-3">（10%OFF特典適用）</div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center border-b border-blue-300 pb-2">
+                    <span className="text-blue-100">セラミック 2本（10%OFF）</span>
+                    <span className="font-bold text-white">¥126,000</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-blue-300 pb-2">
+                    <span className="text-blue-100">歯知クラブ Pro 年会費</span>
+                    <span className="font-bold text-white">¥10,000</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2">
+                    <span className="text-lg font-bold text-white">合計</span>
+                    <span className="text-2xl font-bold text-yellow-300">¥136,000</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 節約額表示 */}
+          <div className="mt-8 text-center">
+            <div className="bg-green-100 border-2 border-green-300 rounded-2xl p-6 inline-block">
+              <div className="flex items-center justify-center mb-2">
+                <Calculator className="w-6 h-6 text-green-600 mr-2" />
+                <span className="text-green-800 font-bold text-lg">節約効果</span>
+              </div>
+              <div className="text-3xl font-bold text-green-700 mb-2">
+                ¥4,000 お得！
+              </div>
+              <div className="text-green-600 text-sm">
+                セラミック2本の治療なら、歯知クラブ加入がお得です
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <p className="text-orange-700 text-sm">
+              ※ セラミック治療以外にも様々な特典をご利用いただけます
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
         {plans.map((plan, idx) => (
           <div
@@ -133,6 +221,17 @@ const Plans = () => {
             </div>
           </div>
         ))}
+      </div>
+      
+      {/* LINEの画面に戻るボタン */}
+      <div className="max-w-3xl mx-auto mt-8 px-4">
+        <button 
+          onClick={() => navigate('/patient/richmenu')}
+          className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 shadow-lg"
+        >
+          <MessageCircle className="w-6 h-6 mr-2" />
+          LINEの画面に戻る
+        </button>
       </div>
     </div>
   );
