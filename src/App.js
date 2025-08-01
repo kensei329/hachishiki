@@ -13,10 +13,9 @@ import Settings from './components/patient/Settings';
 import AdminDashboard from './components/admin/AdminDashboard';
 import BenefitSettings from './components/admin/BenefitSettings';
 import DynamicPricing from './components/admin/DynamicPricing';
-import StaffNomination from './components/admin/StaffNomination';
 import PopPrintSettings from './components/admin/PopPrintSettings';
-import ForceJoinSettings from './components/admin/ForceJoinSettings';
 import PlanManagement from './components/admin/PlanManagement';
+import AdminSettings from './components/admin/Settings';
 
 // トップページコンポーネント
 const TopPage = () => {
@@ -31,9 +30,7 @@ const TopPage = () => {
     { path: '/admin', name: 'ダッシュボード', description: '加入者一覧・統計情報' },
     { path: '/admin/benefits', name: '特典設定', description: 'プラン別特典内容の設定' },
     { path: '/admin/pricing', name: 'ダイナミックプライシング', description: '時間帯別割引設定' },
-    { path: '/admin/staff', name: 'スタッフ指名履歴', description: '指名回数・履歴管理' },
     { path: '/admin/pop', name: 'ポップ印刷設定', description: '促進POP自動生成' },
-    { path: '/admin/force-join', name: '強制加入フラグ設定', description: '自動加入ルール設定' },
   ];
 
   return (
@@ -196,9 +193,8 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/benefits" element={<BenefitSettings />} />
         <Route path="/admin/pricing" element={<DynamicPricing />} />
-        <Route path="/admin/staff" element={<StaffNomination />} />
         <Route path="/admin/pop" element={<PopPrintSettings />} />
-        <Route path="/admin/force-join" element={<ForceJoinSettings />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </div>
   );

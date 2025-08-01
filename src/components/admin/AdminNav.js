@@ -4,7 +4,6 @@ import {
   LayoutDashboard, 
   Gift, 
   DollarSign, 
-  Users, 
   Printer, 
   Settings,
   Menu,
@@ -22,9 +21,8 @@ const AdminNav = ({ children }) => {
     { path: '/admin', icon: LayoutDashboard, label: 'ダッシュボード' },
     { path: '/admin/benefits', icon: Gift, label: '特典設定' },
     { path: '/admin/pricing', icon: DollarSign, label: 'ダイナミックプライシング' },
-    { path: '/admin/staff', icon: Users, label: 'スタッフ指名履歴' },
     { path: '/admin/pop', icon: Printer, label: 'ポップ印刷設定' },
-    { path: '/admin/force-join', icon: Settings, label: '強制加入フラグ設定' },
+    { path: '/admin/settings', icon: Settings, label: '設定' },
   ];
 
   const stores = ['大野城店', '桜並木駅店'];

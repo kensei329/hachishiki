@@ -1,93 +1,114 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminNav from './AdminNav';
-import { Plus, Edit, Save, X, Calendar, DollarSign } from 'lucide-react';
+import { Plus, Edit, Save, X, Calendar, DollarSign, Trash2, Crown, Star, Users, Eye } from 'lucide-react';
 
 const BenefitSettings = () => {
-  const [benefits, setBenefits] = useState([
-    {
-      id: 1,
-      name: '指名無料',
-      description: '好きなスタッフを指名できます',
-      basicCount: 3,
-      premiumCount: 5,
-      price: 1000,
-      validityPeriod: '12ヶ月',
-      isEditing: false,
-    },
-    {
-      id: 2,
-      name: 'エアフロー',
-      description: '歯面クリーニング',
-      basicCount: 1,
-      premiumCount: 3,
-      price: 3000,
-      validityPeriod: '12ヶ月',
-      isEditing: false,
-    },
-    {
-      id: 3,
-      name: 'ホワイトニング',
-      description: '歯の漂白・美白',
-      basicCount: 0,
-      premiumCount: 2,
-      price: 8000,
-      validityPeriod: '12ヶ月',
-      isEditing: false,
-    },
-  ]);
-
-  const [newBenefit, setNewBenefit] = useState({
-    name: '',
-    description: '',
-    basicCount: 0,
-    premiumCount: 0,
-    price: 0,
-    validityPeriod: '12ヶ月',
+  const navigate = useNavigate();
+  // プラン価格設定
+  const [planPrices, setPlanPrices] = useState({
+    basic: 980,
+    pro: 1980,
+    proMax: 2980,
   });
 
-  const [isAddingNew, setIsAddingNew] = useState(false);
+  // プラン別特典設定
+  const [planBenefits, setPlanBenefits] = useState({
+    basic: [
+      { id: 1, name: '指名無料', count: 3, description: '好きなスタッフを指名できます' },
+      { id: 2, name: 'エアフロー', count: 1, description: '歯面クリーニング' },
+      { id: 3, name: 'フッ素塗布', count: 2, description: '虫歯予防のフッ素塗布' },
+    ],
+    pro: [
+      { id: 1, name: '指名無料', count: 5, description: '好きなスタッフを指名できます' },
+      { id: 2, name: 'エアフロー', count: 3, description: '歯面クリーニング' },
+      { id: 3, name: 'ホワイトニング', count: 1, description: '歯の漂白・美白' },
+      { id: 4, name: 'フッ素塗布', count: 4, description: '虫歯予防のフッ素塗布' },
+    ],
+    proMax: [
+      { id: 1, name: '指名無料', count: 10, description: '好きなスタッフを指名できます' },
+      { id: 2, name: 'エアフロー', count: 5, description: '歯面クリーニング' },
+      { id: 3, name: 'ホワイトニング', count: 2, description: '歯の漂白・美白' },
+      { id: 4, name: 'フッ素塗布', count: 6, description: '虫歯予防のフッ素塗布' },
+      { id: 5, name: 'セラミック治療割引', count: 1, description: 'セラミック治療10%OFF' },
+    ],
+  });
 
-  const handleEditBenefit = (id) => {
-    setBenefits(benefits.map(benefit => 
-      benefit.id === id ? { ...benefit, isEditing: true } : benefit
-    ));
+  const [editingPlan, setEditingPlan] = useState(null);
+  const [editingBenefit, setEditingBenefit] = useState(null);
+  const [newBenefit, setNewBenefit] = useState({
+    name: '',
+    count: 0,
+    description: '',
+  });
+
+  const handlePriceChange = (plan, value) => {
+    setPlanPrices({
+      ...planPrices,
+      [plan]: parseInt(value) || 0,
+    });
   };
 
-  const handleSaveBenefit = (id) => {
-    setBenefits(benefits.map(benefit => 
-      benefit.id === id ? { ...benefit, isEditing: false } : benefit
-    ));
+  const handleEditPlan = (plan) => {
+    setEditingPlan(plan);
   };
 
-  const handleCancelEdit = (id) => {
-    setBenefits(benefits.map(benefit => 
-      benefit.id === id ? { ...benefit, isEditing: false } : benefit
-    ));
+  const handleSavePlan = () => {
+    setEditingPlan(null);
   };
 
-  const handleBenefitChange = (id, field, value) => {
-    setBenefits(benefits.map(benefit => 
-      benefit.id === id ? { ...benefit, [field]: value } : benefit
-    ));
+  const handleEditBenefit = (plan, benefitId) => {
+    setEditingBenefit({ plan, benefitId });
   };
 
-  const handleAddNewBenefit = () => {
+  const handleSaveBenefit = () => {
+    setEditingBenefit(null);
+  };
+
+  const handleBenefitChange = (plan, benefitId, field, value) => {
+    setPlanBenefits({
+      ...planBenefits,
+      [plan]: planBenefits[plan].map(benefit =>
+        benefit.id === benefitId ? { ...benefit, [field]: value } : benefit
+      ),
+    });
+  };
+
+  const handleDeleteBenefit = (plan, benefitId) => {
+    setPlanBenefits({
+      ...planBenefits,
+      [plan]: planBenefits[plan].filter(benefit => benefit.id !== benefitId),
+    });
+  };
+
+  const handleAddBenefit = (plan) => {
     if (newBenefit.name && newBenefit.description) {
-      const newId = Math.max(...benefits.map(b => b.id)) + 1;
-      setBenefits([...benefits, { ...newBenefit, id: newId, isEditing: false }]);
-      setNewBenefit({
-        name: '',
-        description: '',
-        basicCount: 0,
-        premiumCount: 0,
-        price: 0,
-        validityPeriod: '12ヶ月',
+      const newId = Math.max(...planBenefits[plan].map(b => b.id)) + 1;
+      setPlanBenefits({
+        ...planBenefits,
+        [plan]: [...planBenefits[plan], { ...newBenefit, id: newId }],
       });
-      setIsAddingNew(false);
+      setNewBenefit({ name: '', count: 0, description: '' });
     }
   };
 
-  const validityOptions = ['6ヶ月', '12ヶ月', '18ヶ月', '24ヶ月'];
+  const getPlanIcon = (plan) => {
+    switch (plan) {
+      case 'basic': return <Users className="w-5 h-5" />;
+      case 'pro': return <Star className="w-5 h-5" />;
+      case 'proMax': return <Crown className="w-5 h-5" />;
+      default: return <Users className="w-5 h-5" />;
+    }
+  };
+
+  const getPlanName = (plan) => {
+    switch (plan) {
+      case 'basic': return 'ベーシック';
+      case 'pro': return 'Pro';
+      case 'proMax': return 'Pro Max';
+      default: return plan;
+    }
+  };
 
   return (
     <AdminNav>
@@ -97,259 +118,209 @@ const BenefitSettings = () => {
             <div className="sm:flex-auto">
               <h1 className="text-2xl font-semibold text-gray-900">特典設定</h1>
               <p className="mt-2 text-sm text-gray-700">
-                サブスクリプションプランの特典内容と価格を管理します。
+                サブスクリプションプランの価格と特典内容を管理します。
               </p>
             </div>
             <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
               <button
-                onClick={() => setIsAddingNew(true)}
+                onClick={() => navigate('/admin/plans')}
                 className="btn-primary"
-                disabled={isAddingNew}
               >
-                <Plus className="w-4 h-4 mr-2" />
-                新しい特典を追加
+                <Eye className="w-4 h-4 mr-2" />
+                患者表示を確認する
               </button>
             </div>
           </div>
 
-          <div className="mt-8 space-y-6">
-            {/* 新規特典追加フォーム */}
-            {isAddingNew && (
-              <div className="bg-white shadow rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">新しい特典を追加</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      特典名
-                    </label>
-                    <input
-                      type="text"
-                      value={newBenefit.name}
-                      onChange={(e) => setNewBenefit({ ...newBenefit, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      placeholder="例: フッ素塗布"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      説明
-                    </label>
-                    <input
-                      type="text"
-                      value={newBenefit.description}
-                      onChange={(e) => setNewBenefit({ ...newBenefit, description: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      placeholder="特典の詳細説明"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      ベーシック回数
-                    </label>
-                    <input
-                      type="number"
-                      value={newBenefit.basicCount}
-                      onChange={(e) => setNewBenefit({ ...newBenefit, basicCount: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      プレミアム回数
-                    </label>
-                    <input
-                      type="number"
-                      value={newBenefit.premiumCount}
-                      onChange={(e) => setNewBenefit({ ...newBenefit, premiumCount: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      通常価格（円）
-                    </label>
-                    <input
-                      type="number"
-                      value={newBenefit.price}
-                      onChange={(e) => setNewBenefit({ ...newBenefit, price: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      有効期間
-                    </label>
-                    <select
-                      value={newBenefit.validityPeriod}
-                      onChange={(e) => setNewBenefit({ ...newBenefit, validityPeriod: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    >
-                      {validityOptions.map(option => (
-                        <option key={option} value={option}>{option}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="mt-6 flex justify-end space-x-3">
-                  <button
-                    onClick={() => setIsAddingNew(false)}
-                    className="btn-secondary"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    キャンセル
-                  </button>
-                  <button
-                    onClick={handleAddNewBenefit}
-                    className="btn-primary"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    追加
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* 既存特典一覧 */}
-            <div className="space-y-4">
-              {benefits.map((benefit) => (
-                <div key={benefit.id} className="bg-white shadow rounded-lg p-6">
-                  {benefit.isEditing ? (
-                    <div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            特典名
-                          </label>
-                          <input
-                            type="text"
-                            value={benefit.name}
-                            onChange={(e) => handleBenefitChange(benefit.id, 'name', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            説明
-                          </label>
-                          <input
-                            type="text"
-                            value={benefit.description}
-                            onChange={(e) => handleBenefitChange(benefit.id, 'description', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            ベーシック回数
-                          </label>
+          <div className="mt-8 space-y-8">
+            {/* プラン価格設定 */}
+            <div className="bg-white shadow rounded-lg p-6">
+              <h2 className="text-lg font-medium text-gray-900 mb-6">プラン価格設定</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {Object.entries(planPrices).map(([plan, price]) => (
+                  <div key={plan} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center mb-3">
+                      {getPlanIcon(plan)}
+                      <h3 className="ml-2 text-lg font-medium text-gray-900">{getPlanName(plan)}</h3>
+                    </div>
+                    {editingPlan === plan ? (
+                      <div>
+                        <div className="flex items-center">
+                          <span className="text-sm text-gray-600 mr-2">月額</span>
                           <input
                             type="number"
-                            value={benefit.basicCount}
-                            onChange={(e) => handleBenefitChange(benefit.id, 'basicCount', parseInt(e.target.value) || 0)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            value={price}
+                            onChange={(e) => handlePriceChange(plan, e.target.value)}
+                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
                             min="0"
                           />
+                          <span className="ml-1 text-sm text-gray-600">円</span>
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            プレミアム回数
-                          </label>
-                          <input
-                            type="number"
-                            value={benefit.premiumCount}
-                            onChange={(e) => handleBenefitChange(benefit.id, 'premiumCount', parseInt(e.target.value) || 0)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            min="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            通常価格（円）
-                          </label>
-                          <input
-                            type="number"
-                            value={benefit.price}
-                            onChange={(e) => handleBenefitChange(benefit.id, 'price', parseInt(e.target.value) || 0)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            min="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            有効期間
-                          </label>
-                          <select
-                            value={benefit.validityPeriod}
-                            onChange={(e) => handleBenefitChange(benefit.id, 'validityPeriod', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          >
-                            {validityOptions.map(option => (
-                              <option key={option} value={option}>{option}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      <div className="mt-6 flex justify-end space-x-3">
                         <button
-                          onClick={() => handleCancelEdit(benefit.id)}
-                          className="btn-secondary"
+                          onClick={handleSavePlan}
+                          className="mt-3 btn-primary text-sm"
                         >
-                          <X className="w-4 h-4 mr-2" />
-                          キャンセル
-                        </button>
-                        <button
-                          onClick={() => handleSaveBenefit(benefit.id)}
-                          className="btn-primary"
-                        >
-                          <Save className="w-4 h-4 mr-2" />
+                          <Save className="w-4 h-4 mr-1" />
                           保存
                         </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-medium text-gray-900">{benefit.name}</h3>
-                          <p className="text-sm text-gray-600">{benefit.description}</p>
-                        </div>
+                    ) : (
+                      <div>
+                        <div className="text-2xl font-bold text-gray-900">¥{price.toLocaleString()}</div>
+                        <div className="text-sm text-gray-600">月額</div>
                         <button
-                          onClick={() => handleEditBenefit(benefit.id)}
-                          className="btn-secondary"
+                          onClick={() => handleEditPlan(plan)}
+                          className="mt-2 btn-secondary text-sm"
                         >
-                          <Edit className="w-4 h-4 mr-2" />
+                          <Edit className="w-4 h-4 mr-1" />
                           編集
                         </button>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <div className="text-sm text-gray-600">ベーシック</div>
-                          <div className="text-lg font-semibold text-gray-900">{benefit.basicCount}回</div>
-                        </div>
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <div className="text-sm text-gray-600">プレミアム</div>
-                          <div className="text-lg font-semibold text-gray-900">{benefit.premiumCount}回</div>
-                        </div>
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <div className="text-sm text-gray-600 flex items-center">
-                            <DollarSign className="w-3 h-3 mr-1" />
-                            通常価格
-                          </div>
-                          <div className="text-lg font-semibold text-gray-900">¥{benefit.price.toLocaleString()}</div>
-                        </div>
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <div className="text-sm text-gray-600 flex items-center">
-                            <Calendar className="w-3 h-3 mr-1" />
-                            有効期間
-                          </div>
-                          <div className="text-lg font-semibold text-gray-900">{benefit.validityPeriod}</div>
-                        </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* プラン別特典設定 */}
+            <div className="space-y-6">
+              {Object.entries(planBenefits).map(([plan, benefits]) => (
+                <div key={plan} className="bg-white shadow rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center">
+                      {getPlanIcon(plan)}
+                      <h3 className="ml-2 text-lg font-medium text-gray-900">{getPlanName(plan)}特典</h3>
+                    </div>
+                    <button
+                      onClick={() => setNewBenefit({ name: '', count: 0, description: '' })}
+                      className="btn-primary text-sm"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      特典追加
+                    </button>
+                  </div>
+
+                  {/* 新規特典追加フォーム */}
+                  {newBenefit.name === '' && (
+                    <div className="mb-6 p-4 border border-gray-200 rounded-lg">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">新しい特典を追加</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input
+                          type="text"
+                          placeholder="特典名"
+                          value={newBenefit.name}
+                          onChange={(e) => setNewBenefit({ ...newBenefit, name: e.target.value })}
+                          className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        />
+                        <input
+                          type="number"
+                          placeholder="回数"
+                          value={newBenefit.count}
+                          onChange={(e) => setNewBenefit({ ...newBenefit, count: parseInt(e.target.value) || 0 })}
+                          className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                          min="0"
+                        />
+                        <input
+                          type="text"
+                          placeholder="説明"
+                          value={newBenefit.description}
+                          onChange={(e) => setNewBenefit({ ...newBenefit, description: e.target.value })}
+                          className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        />
+                      </div>
+                      <div className="mt-3 flex space-x-2">
+                        <button
+                          onClick={() => handleAddBenefit(plan)}
+                          className="btn-primary text-sm"
+                        >
+                          <Save className="w-4 h-4 mr-1" />
+                          追加
+                        </button>
+                        <button
+                          onClick={() => setNewBenefit({ name: '', count: 0, description: '' })}
+                          className="btn-secondary text-sm"
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          キャンセル
+                        </button>
                       </div>
                     </div>
                   )}
+
+                  {/* 特典一覧 */}
+                  <div className="space-y-3">
+                    {benefits.map((benefit) => (
+                      <div key={benefit.id} className="border border-gray-200 rounded-lg p-4">
+                        {editingBenefit?.plan === plan && editingBenefit?.benefitId === benefit.id ? (
+                          <div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <input
+                                type="text"
+                                value={benefit.name}
+                                onChange={(e) => handleBenefitChange(plan, benefit.id, 'name', e.target.value)}
+                                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                              />
+                              <input
+                                type="number"
+                                value={benefit.count}
+                                onChange={(e) => handleBenefitChange(plan, benefit.id, 'count', parseInt(e.target.value) || 0)}
+                                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                min="0"
+                              />
+                              <input
+                                type="text"
+                                value={benefit.description}
+                                onChange={(e) => handleBenefitChange(plan, benefit.id, 'description', e.target.value)}
+                                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                              />
+                            </div>
+                            <div className="mt-3 flex space-x-2">
+                              <button
+                                onClick={handleSaveBenefit}
+                                className="btn-primary text-sm"
+                              >
+                                <Save className="w-4 h-4 mr-1" />
+                                保存
+                              </button>
+                              <button
+                                onClick={() => setEditingBenefit(null)}
+                                className="btn-secondary text-sm"
+                              >
+                                <X className="w-4 h-4 mr-1" />
+                                キャンセル
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center">
+                                <span className="font-medium text-gray-900">{benefit.name}</span>
+                                <span className="ml-2 text-sm text-gray-600">({benefit.count}回)</span>
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1">{benefit.description}</p>
+                            </div>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleEditBenefit(plan, benefit.id)}
+                                className="btn-secondary text-sm"
+                              >
+                                <Edit className="w-4 h-4 mr-1" />
+                                編集
+                              </button>
+                              <button
+                                onClick={() => handleDeleteBenefit(plan, benefit.id)}
+                                className="btn-secondary text-sm text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                削除
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

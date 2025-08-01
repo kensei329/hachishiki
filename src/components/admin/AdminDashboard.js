@@ -1,36 +1,43 @@
 import React from 'react';
 import AdminNav from './AdminNav';
-import { Users, CreditCard, Gift, TrendingUp, Eye, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Users, CreditCard, MessageCircle, Crown, Star, TrendingUp, CheckCircle, XCircle, Clock, Eye } from 'lucide-react';
 
 const AdminDashboard = () => {
   const stats = [
     {
-      name: '総加入者数',
-      value: '127',
-      change: '+12',
+      name: '公式LINE数',
+      value: '156',
+      change: '+8',
+      changeType: 'increase',
+      icon: MessageCircle,
+    },
+    {
+      name: 'ベーシック数',
+      value: '69',
+      change: '+5',
       changeType: 'increase',
       icon: Users,
     },
     {
-      name: '月間売上',
-      value: '¥1,016,000',
+      name: 'Pro数',
+      value: '25',
+      change: '+3',
+      changeType: 'increase',
+      icon: Star,
+    },
+    {
+      name: 'Pro Max数',
+      value: '12',
+      change: '+2',
+      changeType: 'increase',
+      icon: Crown,
+    },
+    {
+      name: '歯知クラブ月間売上',
+      value: '¥116,000',
       change: '+5.4%',
       changeType: 'increase',
       icon: CreditCard,
-    },
-    {
-      name: '特典利用率',
-      value: '78%',
-      change: '+2.1%',
-      changeType: 'increase',
-      icon: Gift,
-    },
-    {
-      name: '継続率',
-      value: '91%',
-      change: '-0.5%',
-      changeType: 'decrease',
-      icon: TrendingUp,
     },
   ];
 
@@ -39,7 +46,7 @@ const AdminDashboard = () => {
       id: 1,
       name: '田中 花子',
       patientId: '12345',
-      plan: '歯知クラブ Pro',
+      plan: 'Pro',
       status: '支払済',
       joinDate: '2024/10/15',
       benefitsUsed: 3,
@@ -49,7 +56,7 @@ const AdminDashboard = () => {
       id: 2,
       name: '佐藤 太郎',
       patientId: '12346',
-      plan: '歯知クラブ ベーシック',
+      plan: 'ベーシック',
       status: '支払済',
       joinDate: '2024/10/14',
       benefitsUsed: 1,
@@ -59,7 +66,7 @@ const AdminDashboard = () => {
       id: 3,
       name: '山田 美咲',
       patientId: '12347',
-      plan: '歯知クラブ Pro',
+      plan: 'Pro',
       status: '未払い',
       joinDate: '2024/10/13',
       benefitsUsed: 0,
@@ -69,7 +76,7 @@ const AdminDashboard = () => {
       id: 4,
       name: '鈴木 一郎',
       patientId: '12348',
-      plan: '歯知クラブ ライト',
+      plan: 'ベーシック',
       status: '支払済',
       joinDate: '2024/10/12',
       benefitsUsed: 2,
@@ -79,7 +86,7 @@ const AdminDashboard = () => {
       id: 5,
       name: '高橋 恵美',
       patientId: '12349',
-      plan: '歯知クラブ Pro',
+      plan: 'Pro',
       status: '支払済',
       joinDate: '2024/10/11',
       benefitsUsed: 5,
@@ -117,7 +124,7 @@ const AdminDashboard = () => {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           {/* 統計カード */}
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {stats.map((item) => {
               const IconComponent = item.icon;
               return (

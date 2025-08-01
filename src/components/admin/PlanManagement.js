@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminNav from './AdminNav';
+import { Settings } from 'lucide-react';
 
 const initialPlans = [
   {
@@ -43,39 +45,8 @@ const initialPlans = [
 ];
 
 const PlanManagement = () => {
+  const navigate = useNavigate();
   const [plans, setPlans] = useState(initialPlans);
-  const [editIdx, setEditIdx] = useState(null);
-  const [editPlan, setEditPlan] = useState(null);
-
-  const handleEdit = (idx) => {
-    setEditIdx(idx);
-    setEditPlan({ ...plans[idx], features: [...plans[idx].features] });
-  };
-
-  const handleSave = () => {
-    setPlans(plans.map((p, i) => (i === editIdx ? editPlan : p)));
-    setEditIdx(null);
-    setEditPlan(null);
-  };
-
-  const handleCancel = () => {
-    setEditIdx(null);
-    setEditPlan(null);
-  };
-
-  const handleFeatureChange = (i, value) => {
-    const newFeatures = [...editPlan.features];
-    newFeatures[i] = value;
-    setEditPlan({ ...editPlan, features: newFeatures });
-  };
-
-  const handleAddFeature = () => {
-    setEditPlan({ ...editPlan, features: [...editPlan.features, '新しい特典'] });
-  };
-
-  const handleRemoveFeature = (i) => {
-    setEditPlan({ ...editPlan, features: editPlan.features.filter((_, idx) => idx !== i) });
-  };
 
   return (
     <AdminNav>
@@ -94,36 +65,13 @@ const PlanManagement = () => {
                     </li>
                   ))}
                 </ul>
-                {editIdx === idx ? (
-                  <>
-                    <input
-                      type="number"
-                      className="w-full border px-2 py-1 rounded mb-2"
-                      value={editPlan.price}
-                      onChange={e => setEditPlan({ ...editPlan, price: Number(e.target.value) })}
-                    />
-                    <div className="mb-2">
-                      {editPlan.features.map((f, i) => (
-                        <div key={i} className="flex items-center mb-1">
-                          <input
-                            type="text"
-                            className="flex-1 border px-2 py-1 rounded"
-                            value={f}
-                            onChange={e => handleFeatureChange(i, e.target.value)}
-                          />
-                          <button className="ml-2 text-red-500" onClick={() => handleRemoveFeature(i)}>削除</button>
-                        </div>
-                      ))}
-                      <button className="text-blue-500 mt-2" onClick={handleAddFeature}>+ 特典を追加</button>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button className="btn-primary flex-1" onClick={handleSave}>保存</button>
-                      <button className="btn-secondary flex-1" onClick={handleCancel}>キャンセル</button>
-                    </div>
-                  </>
-                ) : (
-                  <button className="btn-secondary mt-auto" onClick={() => handleEdit(idx)}>編集</button>
-                )}
+                <button 
+                  className="btn-primary w-full mt-auto" 
+                  onClick={() => navigate('/admin/benefits')}
+                >
+                  <Settings className="w-4 h-4 mr-1" />
+                  特典設定
+                </button>
               </div>
             ))}
           </div>
