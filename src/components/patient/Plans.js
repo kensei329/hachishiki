@@ -75,22 +75,91 @@ const Plans = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-10 px-2">
-      <div className="max-w-3xl mx-auto text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">歯知クラブ メンバーシップ</h1>
-        <p className="text-gray-600 mb-4">あなたの口腔健康を定期的にサポートする、プレミアムな歯科ケアサービスです。<br />月額制で安心の継続ケアを受けられます。</p>
-        <div className="flex flex-col items-center mb-4">
-          <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-medium mb-2">
-            現在: ベーシックプラン加入中
-          </span>
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-700 text-sm">月額払い</span>
-            <label className="inline-flex relative items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" checked={isYearly} onChange={() => setIsYearly(!isYearly)} />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:bg-blue-600 transition-all"></div>
-              <span className="ml-2 text-gray-700 text-sm">年額払い</span>
-            </label>
+      {/* 最上部: 現在のプラン状況と料金切り替え */}
+      <div className="max-w-4xl mx-auto mb-8 px-4">
+        <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-lg">
+          <div className="text-center mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900">歯知クラブ メンバーシップ</h1>
+            <p className="text-gray-600 mb-4">
+              あなたの口腔健康を定期的にサポートする、プレミアムな歯科ケアサービスです。<br />
+              月額制で安心の継続ケアを受けられます。
+            </p>
+          </div>
+          
+          {/* 現在のプラン状況 */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="bg-gradient-to-r from-green-100 to-blue-100 border-2 border-green-300 rounded-full px-6 py-3 mb-4">
+              <span className="text-green-700 font-bold text-lg">
+                🛡️ 現在: ベーシックプラン加入中
+              </span>
+            </div>
+            
+            {/* 料金切り替えスイッチ */}
+            <div className="flex items-center space-x-4 bg-gray-50 rounded-full px-6 py-3">
+              <span className={`text-sm font-medium ${!isYearly ? 'text-blue-600' : 'text-gray-500'}`}>
+                月額払い
+              </span>
+              <label className="inline-flex relative items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={isYearly} 
+                  onChange={() => setIsYearly(!isYearly)} 
+                />
+                <div className="w-12 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 transition-all duration-300"></div>
+                <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-300 peer-checked:translate-x-6"></div>
+              </label>
+              <span className={`text-sm font-medium ${isYearly ? 'text-blue-600' : 'text-gray-500'}`}>
+                年額払い（10%OFF）
+              </span>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* ベーシック、Pro、Pro Max プラン比較 */}
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        {plans.map((plan, idx) => (
+          <div
+            key={plan.id}
+            className={`relative bg-white border-2 ${plan.color} rounded-2xl shadow-md flex flex-col items-center p-8 transition-all ${plan.highlight ? 'ring-2 ring-blue-400 scale-105 z-10' : ''}`}
+          >
+            {plan.badge && (
+              <span className={`absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold ${plan.id === 'gold' ? 'bg-yellow-400 text-white' : 'bg-blue-500 text-white'}`}>
+                {plan.badge}
+              </span>
+            )}
+            <h2 className="text-xl font-bold mb-2 flex items-center">
+              {plan.id === 'basic' && <span className="mr-2">🛡️</span>}
+              {plan.id === 'silver' && <span className="mr-2">⭐</span>}
+              {plan.id === 'gold' && <span className="mr-2">👑</span>}
+              {plan.name}
+            </h2>
+            <div className="text-3xl font-extrabold mb-2 text-gray-900">
+              ¥{getPrice(plan.price).toLocaleString()}
+              <span className="text-base font-medium text-gray-500">/{isYearly ? '年' : '月'}</span>
+            </div>
+            <ul className="text-left mb-6 space-y-2">
+              {plan.features.map((f, i) => (
+                <li key={i} className="flex items-center text-gray-700">
+                  <span className="text-green-500 mr-2">✔</span>{f}
+                </li>
+              ))}
+            </ul>
+            <div className="flex w-full gap-2 mt-2">
+              <button
+                className={`flex-1 py-2 rounded-lg font-bold text-white ${plan.disabled ? 'bg-gray-300 cursor-not-allowed' : plan.id === 'gold' ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600' : plan.id === 'silver' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400'} mb-0`}
+                disabled={plan.disabled}
+                onClick={() => !plan.disabled && handleJoin(plan.id)}
+              >
+                {plan.button}
+              </button>
+              <button className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm bg-gray-50 mb-0" disabled>
+                現地決済で加入
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* セラミック治療お得度PR */}
@@ -178,51 +247,65 @@ const Plans = () => {
           </div>
         </div>
       </div>
-
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        {plans.map((plan, idx) => (
-          <div
-            key={plan.id}
-            className={`relative bg-white border-2 ${plan.color} rounded-2xl shadow-md flex flex-col items-center p-8 transition-all ${plan.highlight ? 'ring-2 ring-blue-400 scale-105 z-10' : ''}`}
-          >
-            {plan.badge && (
-              <span className={`absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold ${plan.id === 'gold' ? 'bg-yellow-400 text-white' : 'bg-blue-500 text-white'}`}>
-                {plan.badge}
-              </span>
-            )}
-            <h2 className="text-xl font-bold mb-2 flex items-center">
-              {plan.id === 'basic' && <span className="mr-2">🛡️</span>}
-              {plan.id === 'silver' && <span className="mr-2">⭐</span>}
-              {plan.id === 'gold' && <span className="mr-2">👑</span>}
-              {plan.name}
-            </h2>
-            <div className="text-3xl font-extrabold mb-2 text-gray-900">
-              ¥{getPrice(plan.price).toLocaleString()}
-              <span className="text-base font-medium text-gray-500">/{isYearly ? '年' : '月'}</span>
+      
+      {/* 注意書き */}
+      <div className="max-w-4xl mx-auto mt-12 px-4">
+        <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-lg">
+          <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+            ご契約・お支払いに関するご案内
+          </h3>
+          <p className="text-gray-700 mb-6 text-center">
+            お客様に安心してサービスをご利用いただくために、以下の内容をご確認ください。
+          </p>
+          
+          <div className="space-y-6">
+            <div className="border-l-4 border-blue-500 pl-4">
+              <h4 className="font-bold text-gray-900 mb-2">1. ご契約期間について</h4>
+              <p className="text-gray-700">
+                すべてのプランは <span className="font-bold">年間契約</span> となっております。途中解約は承っておりませんので、あらかじめご了承ください。
+              </p>
             </div>
-            <ul className="text-left mb-6 space-y-2">
-              {plan.features.map((f, i) => (
-                <li key={i} className="flex items-center text-gray-700">
-                  <span className="text-green-500 mr-2">✔</span>{f}
-                </li>
-              ))}
-            </ul>
-            <div className="flex w-full gap-2 mt-2">
-              <button
-                className={`flex-1 py-2 rounded-lg font-bold text-white ${plan.disabled ? 'bg-gray-300 cursor-not-allowed' : plan.id === 'gold' ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600' : plan.id === 'silver' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400'} mb-0`}
-                disabled={plan.disabled}
-                onClick={() => !plan.disabled && handleJoin(plan.id)}
-              >
-                {plan.button}
-              </button>
-              <button className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm bg-gray-50 mb-0" disabled>
-                現地決済で加入
-              </button>
+
+            <div className="border-l-4 border-blue-500 pl-4">
+              <h4 className="font-bold text-gray-900 mb-2">2. 特典の有効期限について</h4>
+              <p className="text-gray-700">
+                ご契約後に付与される各種特典は、ご加入日から <span className="font-bold">1年間</span> ご利用いただけます。期限を過ぎますとご利用いただけなくなりますので、ぜひお早めのご活用をおすすめいたします。
+              </p>
+            </div>
+
+            <div className="border-l-4 border-blue-500 pl-4">
+              <h4 className="font-bold text-gray-900 mb-2">3. お支払い方法について</h4>
+              <p className="text-gray-700">
+                お支払いはクレジットカード決済のみ対応しております。お客様のご都合に合わせて、「<span className="font-bold">月別払い</span>」または「<span className="font-bold">年間一括払い</span>」をご選択いただけます。
+              </p>
+            </div>
+
+            <div className="border-l-4 border-blue-500 pl-4">
+              <h4 className="font-bold text-gray-900 mb-2">4. プランのアップグレードについて</h4>
+              <p className="text-gray-700">
+                すでに「ベーシックプラン」にご加入いただいているお客様は、いつでも「<span className="font-bold">Proプラン</span>」「<span className="font-bold">Pro Maxプラン</span>」へのアップグレードが可能です。<br />
+                アップグレード後は、決済完了時点から上位プランの特典内容が反映されます。
+              </p>
+            </div>
+
+            <div className="border-l-4 border-blue-500 pl-4">
+              <h4 className="font-bold text-gray-900 mb-2">5. プランのダウングレードについて</h4>
+              <p className="text-gray-700">
+                「Pro」または「Pro Max」から「ベーシック」など下位プランへ変更されたい場合は、マイページより翌年の自動更新プランを変更いただけます。<br />
+                たとえば、「Proプラン」の契約が終了した翌日から「ベーシックプラン（月払いまたは年払い）」として自動更新されるよう設定可能です。
+              </p>
+            </div>
+
+            <div className="border-l-4 border-blue-500 pl-4">
+              <h4 className="font-bold text-gray-900 mb-2">6. 自動更新設定について</h4>
+              <p className="text-gray-700">
+                マイページにて、翌年の自動更新の有無を自由に切り替えることができます。継続をご希望でない場合は、更新日の前日までに自動更新をオフにしてください。
+              </p>
             </div>
           </div>
-        ))}
+        </div>
       </div>
-      
+
       {/* LINEの画面に戻るボタン */}
       <div className="max-w-3xl mx-auto mt-8 px-4">
         <button 

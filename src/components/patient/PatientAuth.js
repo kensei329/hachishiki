@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, User, Calendar, Users, Building } from 'lucide-react';
 
 const PatientAuth = () => {
-  const [patientId, setPatientId] = useState('');
-  const [passcode, setPasscode] = useState('');
+  const [formData, setFormData] = useState({
+    patientName: '',
+    birthDate: '',
+    gender: '',
+    clinicCode: ''
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+
+  const handleInputChange = (field, value) => {
+    setFormData({
+      ...formData,
+      [field]: value
+    });
+  };
 
   const handleAuth = (e) => {
     e.preventDefault();
     // モックアップのため、簡単な認証処理
-    if (patientId && passcode) {
+    if (formData.patientName && formData.birthDate && formData.gender && 
+        formData.clinicCode) {
       setIsAuthenticated(true);
       // 2秒後にホーム画面に遷移
       setTimeout(() => {
@@ -44,35 +56,80 @@ const PatientAuth = () => {
         </div>
         
         <form onSubmit={handleAuth} className="space-y-4">
+          {/* 患者氏名 */}
           <div>
-            <label htmlFor="patientId" className="block text-sm font-medium text-gray-700 mb-1">
-              患者番号
+            <label htmlFor="patientName" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <User className="w-4 h-4 mr-1" />
+              患者氏名 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              id="patientId"
-              value={patientId}
-              onChange={(e) => setPatientId(e.target.value)}
+              id="patientName"
+              value={formData.patientName}
+              onChange={(e) => handleInputChange('patientName', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="例: 12345"
+              placeholder="例: 田中 花子"
               required
             />
           </div>
-          
+
+          {/* 生年月日 */}
           <div>
-            <label htmlFor="passcode" className="block text-sm font-medium text-gray-700 mb-1">
-              パスコード
+            <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <Calendar className="w-4 h-4 mr-1" />
+              生年月日 <span className="text-red-500">*</span>
             </label>
             <input
-              type="password"
-              id="passcode"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
+              type="date"
+              id="birthDate"
+              value={formData.birthDate}
+              onChange={(e) => handleInputChange('birthDate', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="医院から発行されたパスコード"
               required
             />
           </div>
+
+          {/* 性別 */}
+          <div>
+            <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <Users className="w-4 h-4 mr-1" />
+              性別 <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="gender"
+              value={formData.gender}
+              onChange={(e) => handleInputChange('gender', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              required
+            >
+              <option value="">選択してください</option>
+              <option value="male">男性</option>
+              <option value="female">女性</option>
+              <option value="other">その他</option>
+            </select>
+          </div>
+
+          {/* 歯科医院コード */}
+          <div>
+            <label htmlFor="clinicCode" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <Building className="w-4 h-4 mr-1" />
+              歯科医院コード <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="clinicCode"
+              value={formData.clinicCode}
+              onChange={(e) => handleInputChange('clinicCode', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="例: HACHI001"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              歯科医院のポップなどに記載されているコードを入力してください
+            </p>
+          </div>
+
+
           
           <button
             type="submit"
@@ -82,12 +139,7 @@ const PatientAuth = () => {
           </button>
         </form>
         
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            パスコードを忘れた場合は、<br />
-            歯科医院にお問い合わせください
-          </p>
-        </div>
+
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, CreditCard, Settings as SettingsIcon, HelpCircle, ToggleLeft, ToggleRight, Crown, Building, Phone, Mail, MessageCircle } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Settings as SettingsIcon, HelpCircle, ToggleLeft, ToggleRight, Crown, Building, Phone, Mail, MessageCircle, Calendar, ChevronDown } from 'lucide-react';
 
 const Settings = () => {
   const navigate = useNavigate();
   const [autoRenewal, setAutoRenewal] = useState(true);
+  const [nextYearPlan, setNextYearPlan] = useState('pro');
+  const [nextYearPayment, setNextYearPayment] = useState('monthly');
 
   // 加入者情報（サンプルデータ）
   const memberInfo = {
@@ -141,6 +143,122 @@ const Settings = () => {
                 ? '自動更新が有効です。次回更新日に自動的に継続されます。'
                 : '自動更新が無効です。次回更新日でサービスが終了します。'
               }
+            </div>
+          </div>
+        </div>
+
+        {/* 翌年度プラン変更設定 */}
+        <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-200">
+          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <Calendar className="w-6 h-6 text-yellow-500 mr-2" />
+            翌年度プラン変更設定
+          </h2>
+          <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+            {/* 現在のプラン情報 */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="text-blue-800 font-bold text-lg mb-2">現在のプラン</div>
+              <div className="text-blue-700">
+                <div className="flex items-center justify-between">
+                  <span>プラン:</span>
+                  <span className="font-bold">{memberInfo.plan}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>月額料金:</span>
+                  <span className="font-bold">{memberInfo.monthlyFee}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>次回更新日:</span>
+                  <span className="font-bold">{memberInfo.nextRenewal}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 翌年度プラン選択 */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-gray-800 font-medium mb-3">
+                  翌年度のプラン
+                </label>
+                <div className="relative">
+                  <select
+                    value={nextYearPlan}
+                    onChange={(e) => setNextYearPlan(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-800 font-medium appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="basic">ベーシック (¥980/月)</option>
+                    <option value="pro">Pro (¥1,980/月)</option>
+                    <option value="pro-max">Pro Max (¥2,980/月)</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  選択されたプランは {memberInfo.nextRenewal} の翌日から適用されます
+                </p>
+              </div>
+
+              {/* 翌年度支払い方法選択 */}
+              <div>
+                <label className="block text-gray-800 font-medium mb-3">
+                  翌年度の支払い方法
+                </label>
+                <div className="space-y-3">
+                  <label className="flex items-center p-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="nextYearPayment"
+                      value="monthly"
+                      checked={nextYearPayment === 'monthly'}
+                      onChange={(e) => setNextYearPayment(e.target.value)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <div className="ml-3">
+                      <div className="text-gray-800 font-medium">月払い</div>
+                      <div className="text-gray-600 text-sm">毎月自動引き落とし</div>
+                    </div>
+                  </label>
+                  <label className="flex items-center p-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="nextYearPayment"
+                      value="yearly"
+                      checked={nextYearPayment === 'yearly'}
+                      onChange={(e) => setNextYearPayment(e.target.value)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <div className="ml-3">
+                      <div className="text-gray-800 font-medium">年払い（10%OFF）</div>
+                      <div className="text-gray-600 text-sm">年間一括支払いでお得</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* 設定内容確認 */}
+              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="text-green-800 font-bold text-lg mb-2">設定内容確認</div>
+                <div className="text-green-700 space-y-1">
+                  <div>翌年度プラン: <span className="font-bold">
+                    {nextYearPlan === 'basic' ? 'ベーシック' : nextYearPlan === 'pro' ? 'Pro' : 'Pro Max'}
+                  </span></div>
+                  <div>支払い方法: <span className="font-bold">
+                    {nextYearPayment === 'monthly' ? '月払い' : '年払い（10%OFF）'}
+                  </span></div>
+                  <div>適用開始日: <span className="font-bold">{memberInfo.nextRenewal} の翌日</span></div>
+                </div>
+              </div>
+
+              {/* 注意事項 */}
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="text-yellow-800 text-sm">
+                  <div className="font-bold mb-1">⚠️ 注意事項</div>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>プラン変更は契約期間中であればいつでも可能です</li>
+                    <li>設定変更は即座に反映され、次回更新日から適用されます</li>
+                    <li>現在の契約期間中は現在のプランが継続されます</li>
+                    <li>ダウングレードの場合、特典の利用可能回数は変更後のプランに合わせて調整されます</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>

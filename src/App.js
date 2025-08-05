@@ -24,6 +24,8 @@ const TopPage = () => {
     { path: '/patient/home', name: 'ホーム画面', description: 'サブスク加入状況・特典一覧' },
     { path: '/patient/chat', name: 'AIチャット画面', description: 'AI歯科医との相談機能' },
     { path: '/patient/richmenu', name: 'LINEリッチメニュー', description: 'LINE公式アカウント風UI' },
+    { path: '/patient/plans', name: 'メンバーシップ画面', description: 'プラン比較・加入申込' },
+    { path: '/patient/settings', name: '設定画面', description: 'プラン情報・自動更新設定' },
   ];
 
   const adminUrls = [
@@ -31,6 +33,7 @@ const TopPage = () => {
     { path: '/admin/benefits', name: '特典設定', description: 'プラン別特典内容の設定' },
     { path: '/admin/pricing', name: 'ダイナミックプライシング', description: '時間帯別割引設定' },
     { path: '/admin/pop', name: 'ポップ印刷設定', description: '促進POP自動生成' },
+    { path: '/admin/settings', name: '設定画面', description: '医院名・営業時間・店舗設定' },
   ];
 
   return (
