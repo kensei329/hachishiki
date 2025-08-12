@@ -9,6 +9,58 @@ const Discount = () => {
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('credit');
 
+  // ユーザーのプラン情報（実際の実装ではAPIから取得）
+  const userPlan = {
+    name: 'ベーシック',
+    type: 'basic',
+    discountPercentage: 5
+  };
+
+  // プラン別割引設定（実際の実装ではAPIから取得）
+  const planDiscounts = {
+    basic: {
+      enabled: true,
+      type: 'percentage',
+      value: 5,
+      description: 'ベーシック会員割引'
+    },
+    pro: {
+      enabled: true,
+      type: 'percentage',
+      value: 10,
+      description: 'Pro会員割引'
+    },
+    proMax: {
+      enabled: true,
+      type: 'percentage',
+      value: 15,
+      description: 'Pro Max会員割引'
+    }
+  };
+
+  // プラン別の最安値を計算する関数
+  const calculatePlanPrice = (basePrice, planType) => {
+    const plan = planDiscounts[planType];
+    if (!plan || !plan.enabled) {
+      return basePrice;
+    }
+    
+    if (plan.type === 'percentage') {
+      return basePrice * (1 - plan.value / 100);
+    } else {
+      return Math.max(0, basePrice - plan.value);
+    }
+  };
+
+  // 時間帯割引とプラン割引の最安値を計算する関数
+  const calculateBestPrice = (basePrice, timeDiscount, planType) => {
+    const planPrice = calculatePlanPrice(basePrice, planType);
+    const timePrice = timeDiscount.enabled ? timeDiscount.price : basePrice;
+    
+    // より安い価格（より大きな割引）を返す
+    return Math.min(planPrice, timePrice);
+  };
+
   // 割引価格表データ
   const discountServices = [
     {
@@ -263,10 +315,26 @@ const Discount = () => {
           >
             <ArrowLeft className="w-6 h-6 text-gray-600" />
           </button>
-          <h1 className="text-xl font-bold text-gray-800 flex items-center">
-            <DollarSign className="w-6 h-6 text-green-500 mr-2" />
-            お得な割引
-          </h1>
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-gray-800 flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-green-500 mr-2" />
+              お得な割引
+            </h1>
+            <div className="mt-2">
+              <span className="text-sm text-gray-600">あなたのプラン: </span>
+              <span className="text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                {userPlan.name} {userPlan.discountPercentage}%OFF
+              </span>
+            </div>
+            <div className="mt-3">
+              <button
+                onClick={() => navigate('/patient/plans')}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-xs font-medium px-4 py-2 rounded-lg transition-all transform hover:scale-105 shadow-md"
+              >
+                プランをアップグレードしてお得に割引を得る
+              </button>
+            </div>
+          </div>
           <div className="w-10"></div>
         </div>
       </div>
@@ -277,32 +345,85 @@ const Discount = () => {
           <div key={service.id} className="bg-white rounded-2xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-800">{service.name}</h3>
-              <span className="text-gray-600 text-sm">通常価格: ¥{service.basePrice.toLocaleString()}</span>
+              <div className="text-right">
+                <div className="text-gray-600 text-sm">通常価格: ¥{service.basePrice.toLocaleString()}</div>
+                <div className="text-blue-600 text-sm font-medium">
+                  {userPlan.name}価格: ¥{calculatePlanPrice(service.basePrice, userPlan.type).toLocaleString()}
+                </div>
+              </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4 mb-4">
               {service.weekdayDiscount.enabled && (
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <div className="text-sm text-blue-600 font-medium mb-1">平日({service.weekdayDiscount.timeSlot})割引</div>
-                  {getDiscountBadge(service, 'weekdayDiscount', service.weekdayDiscount)}
+                  <div className="text-center p-2">
+                    <span className="text-green-600 font-bold text-lg">
+                      ¥{calculateBestPrice(service.basePrice, service.weekdayDiscount, userPlan.type).toLocaleString()}
+                    </span>
+                    <div className="text-xs text-green-600">{service.weekdayDiscount.percentage}%OFF</div>
+                    <button
+                      onClick={() => handleServiceSelect(service, 'weekdayDiscount', service.weekdayDiscount)}
+                      className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center"
+                    >
+                      <CreditCard className="w-3 h-3 mr-1" />
+                      この価格で申し込む
+                    </button>
+                  </div>
                 </div>
               )}
               {service.saturdayDiscount.enabled && (
                 <div className="text-center p-3 bg-green-50 rounded-lg">
                   <div className="text-sm text-green-600 font-medium mb-1">土曜日({service.saturdayDiscount.timeSlot})割引</div>
-                  {getDiscountBadge(service, 'saturdayDiscount', service.saturdayDiscount)}
+                  <div className="text-center p-2">
+                    <span className="text-green-600 font-bold text-lg">
+                      ¥{calculateBestPrice(service.basePrice, service.saturdayDiscount, userPlan.type).toLocaleString()}
+                    </span>
+                    <div className="text-xs text-green-600">{service.saturdayDiscount.percentage}%OFF</div>
+                    <button
+                      onClick={() => handleServiceSelect(service, 'saturdayDiscount', service.saturdayDiscount)}
+                      className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center"
+                    >
+                      <CreditCard className="w-3 h-3 mr-1" />
+                      この価格で申し込む
+                    </button>
+                  </div>
                 </div>
               )}
               {service.sundayDiscount.enabled && (
                 <div className="text-center p-3 bg-purple-50 rounded-lg">
                   <div className="text-sm text-purple-600 font-medium mb-1">日曜日({service.sundayDiscount.timeSlot})割引</div>
-                  {getDiscountBadge(service, 'sundayDiscount', service.sundayDiscount)}
+                  <div className="text-center p-2">
+                    <span className="text-green-600 font-bold text-lg">
+                      ¥{calculateBestPrice(service.basePrice, service.sundayDiscount, userPlan.type).toLocaleString()}
+                    </span>
+                    <div className="text-xs text-green-600">{service.sundayDiscount.percentage}%OFF</div>
+                    <button
+                      onClick={() => handleServiceSelect(service, 'sundayDiscount', service.sundayDiscount)}
+                      className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center"
+                    >
+                      <CreditCard className="w-3 h-3 mr-1" />
+                      この価格で申し込む
+                    </button>
+                  </div>
                 </div>
               )}
               {service.holidayDiscount.enabled && (
                 <div className="text-center p-3 bg-red-50 rounded-lg">
                   <div className="text-sm text-red-600 font-medium mb-1">祝日({service.holidayDiscount.timeSlot})割引</div>
-                  {getDiscountBadge(service, 'holidayDiscount', service.holidayDiscount)}
+                  <div className="text-center p-2">
+                    <span className="text-green-600 font-bold text-lg">
+                      ¥{calculateBestPrice(service.basePrice, service.holidayDiscount, userPlan.type).toLocaleString()}
+                    </span>
+                    <div className="text-xs text-green-600">{service.holidayDiscount.percentage}%OFF</div>
+                    <button
+                      onClick={() => handleServiceSelect(service, 'holidayDiscount', service.holidayDiscount)}
+                      className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center"
+                    >
+                      <CreditCard className="w-3 h-3 mr-1" />
+                      この価格で申し込む
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -311,11 +432,15 @@ const Discount = () => {
             <div className="text-center p-3 bg-gray-50 rounded-lg mb-4">
               <div className="text-sm text-gray-600 font-medium mb-1">通常価格</div>
               <div className="text-center p-2">
-                <span className="text-gray-800 font-bold text-lg">¥{service.basePrice.toLocaleString()}</span>
-                <div className="text-xs text-gray-500">割引なし</div>
+                <span className="text-blue-600 font-bold text-lg">
+                  ベーシック価格: ¥{calculatePlanPrice(service.basePrice, userPlan.type).toLocaleString()}
+                </span>
+                <div className="text-xs text-blue-600 mt-1">
+                  {userPlan.discountPercentage}%OFF
+                </div>
                 <button
                   onClick={() => handleServiceSelect(service, { 
-                    price: service.basePrice, 
+                    price: calculateBestPrice(service.basePrice, { enabled: false }, userPlan.type), 
                     percentage: 0, 
                     timeSlot: '通常価格' 
                   })}

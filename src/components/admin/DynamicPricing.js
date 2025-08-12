@@ -56,7 +56,7 @@ const DynamicPricing = () => {
     }
   });
 
-  // 各サービスでのプラン割引の有効/無効状態を管理
+  // 各サービスでのプラン割引の有効/無効状態を管理（一括設定の上書き用）
   const [servicePlanDiscounts, setServicePlanDiscounts] = useState({
     1: { // 矯正
       basic: true,
@@ -79,6 +79,10 @@ const DynamicPricing = () => {
       proMax: true
     }
   });
+
+
+
+
 
   const [services, setServices] = useState([
     {
@@ -195,12 +199,53 @@ const DynamicPricing = () => {
     return basePrice * (1 - discountPercentage / 100);
   };
 
-  // 最大割引を計算する関数（時間帯割引とプラン割引の併用ではなく、最大割引を適用）
-  const calculateMaxDiscountedPrice = (basePrice, timeDiscountPercentage, planDiscountPercentage) => {
-    const timeDiscountPrice = basePrice * (1 - timeDiscountPercentage / 100);
-    const planDiscountPrice = basePrice * (1 - planDiscountPercentage / 100);
+  // プラン別割引価格の計算
+  const calculatePlanPrice = (basePrice, planType) => {
+    if (!planDiscounts[planType].enabled) return basePrice;
     
-    // より安い価格（より大きな割引）を返す
+    if (planDiscounts[planType].type === 'percentage') {
+      return Math.max(0, basePrice * (1 - planDiscounts[planType].value / 100));
+    } else {
+      return Math.max(0, basePrice - planDiscounts[planType].value);
+    }
+  };
+
+  // サービス別プラン割引価格の計算（個別設定と一括設定の両方を考慮）
+  const calculateServicePlanPrice = (basePrice, serviceId, planType) => {
+    const serviceDiscount = servicePlanDiscounts[serviceId]?.[planType];
+    
+    // 個別設定がある場合は個別設定を使用、ない場合は一括設定を使用
+    if (serviceDiscount && serviceDiscount.enabled !== undefined) {
+      if (!serviceDiscount.enabled) return basePrice;
+      
+      const discountType = serviceDiscount.type || planDiscounts[planType].type;
+      const discountValue = serviceDiscount.value !== undefined ? serviceDiscount.value : planDiscounts[planType].value;
+      
+      if (discountType === 'percentage') {
+        return Math.max(0, basePrice * (1 - discountValue / 100));
+      } else {
+        return Math.max(0, basePrice - discountValue);
+      }
+    } else {
+      // 一括設定のみ使用
+      if (!planDiscounts[planType].enabled) return basePrice;
+      
+      if (planDiscounts[planType].type === 'percentage') {
+        return Math.max(0, basePrice * (1 - planDiscounts[planType].value / 100));
+      } else {
+        return Math.max(0, basePrice - planDiscounts[planType].value);
+      }
+    }
+  };
+
+  // 最安値の計算（時間帯割引とプラン割引の比較）
+  const calculateBestPrice = (basePrice, timeDiscount, serviceId, planType) => {
+    const timeDiscountPrice = timeDiscount.enabled && pricingSettings[timeDiscount.type].enabled
+      ? calculateDiscountedPrice(basePrice, pricingSettings[timeDiscount.type].percentage)
+      : basePrice;
+    
+    const planDiscountPrice = calculateServicePlanPrice(basePrice, serviceId, planType);
+    
     return Math.min(timeDiscountPrice, planDiscountPrice);
   };
 
@@ -231,9 +276,47 @@ const DynamicPricing = () => {
       ...prev,
       [serviceId]: {
         ...prev[serviceId],
-        [planKey]: !prev[serviceId][planKey]
+        [planKey]: {
+          ...prev[serviceId][planKey],
+          enabled: !prev[serviceId][planKey].enabled
+        }
       }
     }));
+  };
+
+  const handleServicePlanDiscountChange = (serviceId, planKey, field, value) => {
+    setServicePlanDiscounts(prev => ({
+      ...prev,
+      [serviceId]: {
+        ...prev[serviceId],
+        [planKey]: {
+          ...prev[serviceId][planKey],
+          [field]: field === 'value' ? parseInt(value) || 0 : value
+        }
+      }
+    }));
+  };
+
+  const handleApplyBatchSettings = (planKey) => {
+    const newPlanDiscounts = { ...planDiscounts };
+    newPlanDiscounts[planKey].enabled = true; // 一括設定を有効にする
+
+    // サービス別のプラン割引状態を更新
+    setServicePlanDiscounts(prev => {
+      const newState = { ...prev };
+      for (const serviceId in newState) {
+        newState[serviceId] = {
+          ...newState[serviceId],
+          [planKey]: {
+            ...newState[serviceId][planKey],
+            enabled: true
+          }
+        };
+      }
+      return newState;
+    });
+
+    setPlanDiscounts(newPlanDiscounts);
   };
 
   const getDiscountTypeName = (type) => {
@@ -338,19 +421,16 @@ const DynamicPricing = () => {
               </div>
             ))}
 
-            {/* プラン別割引設定 */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                    <Crown className="w-5 h-5 mr-2 text-yellow-500" />
-                    プラン別割引設定
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    時間帯割引と併用する場合、より大きな割引が適用されます（併用ではありません）
-                  </p>
-                </div>
+            {/* プラン別割引一括設定 */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <div className="flex items-center mb-4">
+                <Crown className="w-6 h-6 text-yellow-500 mr-2" />
+                <h2 className="text-xl font-semibold text-gray-800">プラン別割引一括設定</h2>
               </div>
+              <p className="text-gray-600 mb-6">
+                時間帯割引と併用する場合、より大きな割引が適用されます (併用ではありません)。<br />
+                この設定は全サービスに一括で適用され、個別のサービス設定を上書きします。
+              </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* ベーシック会員割引 */}
@@ -381,7 +461,7 @@ const DynamicPricing = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                         >
                           <option value="percentage">割引率（%）</option>
-                          <option value="fixed">固定額（円）</option>
+                          <option value="fixed">割引額（円）</option>
                         </select>
                       </div>
                       <div>
@@ -397,6 +477,12 @@ const DynamicPricing = () => {
                           max={planDiscounts.basic.type === 'percentage' ? "100" : undefined}
                         />
                       </div>
+                      <button
+                        onClick={() => handleApplyBatchSettings('basic')}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors"
+                      >
+                        一括設定する
+                      </button>
                     </div>
                   )}
                 </div>
@@ -429,7 +515,7 @@ const DynamicPricing = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                         >
                           <option value="percentage">割引率（%）</option>
-                          <option value="fixed">固定額（円）</option>
+                          <option value="fixed">割引額（円）</option>
                         </select>
                       </div>
                       <div>
@@ -445,6 +531,12 @@ const DynamicPricing = () => {
                           max={planDiscounts.pro.type === 'percentage' ? "100" : undefined}
                         />
                       </div>
+                      <button
+                        onClick={() => handleApplyBatchSettings('pro')}
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors"
+                      >
+                        一括設定する
+                      </button>
                     </div>
                   )}
                 </div>
@@ -477,7 +569,7 @@ const DynamicPricing = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                         >
                           <option value="percentage">割引率（%）</option>
-                          <option value="fixed">固定額（円）</option>
+                          <option value="fixed">割引額（円）</option>
                         </select>
                       </div>
                       <div>
@@ -493,6 +585,12 @@ const DynamicPricing = () => {
                           max={planDiscounts.proMax.type === 'percentage' ? "100" : undefined}
                         />
                       </div>
+                      <button
+                        onClick={() => handleApplyBatchSettings('proMax')}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors"
+                      >
+                        一括設定する
+                      </button>
                     </div>
                   )}
                 </div>
@@ -664,31 +762,46 @@ const DynamicPricing = () => {
                           </td>
                         </tr>
 
-                        {/* ベーシックプラン行 */}
+                        {/* Basic Plan Row */}
                         {planDiscounts.basic.enabled && (
                           <tr className="hover:bg-blue-50">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">ベーシック</span>
-                                <button
-                                  onClick={() => handleServicePlanDiscountToggle(service.id, 'basic')}
-                                  className="flex items-center ml-2"
-                                >
-                                  {servicePlanDiscounts[service.id]?.basic ? (
-                                    <ToggleRight className="w-6 h-4 text-green-500" />
-                                  ) : (
-                                    <ToggleLeft className="w-6 h-4 text-gray-400" />
-                                  )}
+                                <button onClick={() => handleServicePlanDiscountToggle(service.id, 'basic')} className="flex items-center ml-2">
+                                  {servicePlanDiscounts[service.id]?.basic ? (<ToggleRight className="w-6 h-4 text-green-500" />) : (<ToggleLeft className="w-6 h-4 text-gray-400" />)}
                                 </button>
                               </div>
+                              {/* サービス別プラン割引設定 */}
+                              {servicePlanDiscounts[service.id]?.basic && (
+                                <div className="mt-2 text-xs">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <select
+                                      value={servicePlanDiscounts[service.id].basic.type || planDiscounts.basic.type}
+                                      onChange={(e) => handleServicePlanDiscountChange(service.id, 'basic', 'type', e.target.value)}
+                                      className="text-xs border border-gray-300 rounded px-1 py-0.5"
+                                    >
+                                      <option value="percentage">割引率(%)</option>
+                                      <option value="fixed">割引額(円)</option>
+                                    </select>
+                                    <input
+                                      type="number"
+                                      value={servicePlanDiscounts[service.id].basic.value || planDiscounts.basic.value}
+                                      onChange={(e) => handleServicePlanDiscountChange(service.id, 'basic', 'value', parseInt(e.target.value))}
+                                      className="w-16 text-xs border border-gray-300 rounded px-1 py-0.5"
+                                      min="0"
+                                    />
+                                    <span className="text-gray-500">
+                                      {(servicePlanDiscounts[service.id].basic.type || planDiscounts.basic.type) === 'percentage' ? '%' : '円'}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-blue-600">
                                 {servicePlanDiscounts[service.id]?.basic ? (
-                                  `¥${planDiscounts.basic.type === 'percentage' 
-                                    ? calculateDiscountedPrice(service.basePrice, planDiscounts.basic.value).toLocaleString()
-                                    : Math.max(0, service.basePrice - planDiscounts.basic.value).toLocaleString()
-                                  }`
+                                  `¥${calculateServicePlanPrice(service.basePrice, service.id, 'basic').toLocaleString()}`
                                 ) : (
                                   `¥${service.basePrice.toLocaleString()}`
                                 )}
@@ -696,61 +809,66 @@ const DynamicPricing = () => {
                             </td>
                             {discountTypes.map(({ key }) => (
                               <td key={key} className="px-6 py-4 whitespace-nowrap text-center">
-                                <div className="text-xs text-blue-600">
+                                <div className="text-xs">
                                   {service[`${key.replace('Discount', '')}DiscountEnabled`] && pricingSettings[key].enabled ? (
                                     <span className="text-green-600">
                                       ¥{Math.min(
                                         calculateDiscountedPrice(service.basePrice, pricingSettings[key].percentage),
-                                        servicePlanDiscounts[service.id]?.basic ? (
-                                          planDiscounts.basic.type === 'percentage' 
-                                            ? calculateDiscountedPrice(service.basePrice, planDiscounts.basic.value)
-                                            : Math.max(0, service.basePrice - planDiscounts.basic.value)
-                                        ) : service.basePrice
+                                        servicePlanDiscounts[service.id]?.basic ? calculateServicePlanPrice(service.basePrice, service.id, 'basic') : service.basePrice
                                       ).toLocaleString()}
                                     </span>
                                   ) : (
                                     <span className="text-blue-600">
-                                      ¥{servicePlanDiscounts[service.id]?.basic ? (
-                                        planDiscounts.basic.type === 'percentage' 
-                                          ? calculateDiscountedPrice(service.basePrice, planDiscounts.basic.value)
-                                          : Math.max(0, service.basePrice - planDiscounts.basic.value)
-                                      ) : service.basePrice}
+                                      ¥{(servicePlanDiscounts[service.id]?.basic ? calculateServicePlanPrice(service.basePrice, service.id, 'basic') : service.basePrice).toLocaleString()}
                                     </span>
                                   )}
                                 </div>
                               </td>
                             ))}
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <div className="text-xs text-gray-400">-</div>
-                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center"><div className="text-xs text-gray-400">-</div></td>
                           </tr>
                         )}
 
-                        {/* Proプラン行 */}
+                        {/* Pro Plan Row */}
                         {planDiscounts.pro.enabled && (
                           <tr className="hover:bg-orange-50">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded">Pro</span>
-                                <button
-                                  onClick={() => handleServicePlanDiscountToggle(service.id, 'pro')}
-                                  className="flex items-center ml-2"
-                                >
-                                  {servicePlanDiscounts[service.id]?.pro ? (
-                                    <ToggleRight className="w-6 h-4 text-green-500" />
-                                  ) : (
-                                    <ToggleLeft className="w-6 h-4 text-gray-400" />
-                                  )}
+                                <button onClick={() => handleServicePlanDiscountToggle(service.id, 'pro')} className="flex items-center ml-2">
+                                  {servicePlanDiscounts[service.id]?.pro ? (<ToggleRight className="w-6 h-4 text-green-500" />) : (<ToggleLeft className="w-6 h-4 text-gray-400" />)}
                                 </button>
                               </div>
+                              {/* サービス別プラン割引設定 */}
+                              {servicePlanDiscounts[service.id]?.pro && (
+                                <div className="mt-2 text-xs">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <select
+                                      value={servicePlanDiscounts[service.id].pro.type || planDiscounts.pro.type}
+                                      onChange={(e) => handleServicePlanDiscountChange(service.id, 'pro', 'type', e.target.value)}
+                                      className="text-xs border border-gray-300 rounded px-1 py-0.5"
+                                    >
+                                      <option value="percentage">割引率(%)</option>
+                                      <option value="fixed">割引額(円)</option>
+                                    </select>
+                                    <input
+                                      type="number"
+                                      value={servicePlanDiscounts[service.id].pro.value || planDiscounts.pro.value}
+                                      onChange={(e) => handleServicePlanDiscountChange(service.id, 'pro', 'value', parseInt(e.target.value))}
+                                      className="w-16 text-xs border border-gray-300 rounded px-1 py-0.5"
+                                      min="0"
+                                    />
+                                    <span className="text-gray-500">
+                                      {(servicePlanDiscounts[service.id].pro.type || planDiscounts.pro.type) === 'percentage' ? '%' : '円'}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-orange-600">
                                 {servicePlanDiscounts[service.id]?.pro ? (
-                                  `¥${planDiscounts.pro.type === 'percentage' 
-                                    ? calculateDiscountedPrice(service.basePrice, planDiscounts.pro.value).toLocaleString()
-                                    : Math.max(0, service.basePrice - planDiscounts.pro.value).toLocaleString()
-                                  }`
+                                  `¥${calculateServicePlanPrice(service.basePrice, service.id, 'pro').toLocaleString()}`
                                 ) : (
                                   `¥${service.basePrice.toLocaleString()}`
                                 )}
@@ -758,61 +876,66 @@ const DynamicPricing = () => {
                             </td>
                             {discountTypes.map(({ key }) => (
                               <td key={key} className="px-6 py-4 whitespace-nowrap text-center">
-                                <div className="text-xs text-orange-600">
+                                <div className="text-xs">
                                   {service[`${key.replace('Discount', '')}DiscountEnabled`] && pricingSettings[key].enabled ? (
                                     <span className="text-green-600">
                                       ¥{Math.min(
                                         calculateDiscountedPrice(service.basePrice, pricingSettings[key].percentage),
-                                        servicePlanDiscounts[service.id]?.pro ? (
-                                          planDiscounts.pro.type === 'percentage' 
-                                            ? calculateDiscountedPrice(service.basePrice, planDiscounts.pro.value)
-                                            : Math.max(0, service.basePrice - planDiscounts.pro.value)
-                                        ) : service.basePrice
+                                        servicePlanDiscounts[service.id]?.pro ? calculateServicePlanPrice(service.basePrice, service.id, 'pro') : service.basePrice
                                       ).toLocaleString()}
                                     </span>
                                   ) : (
                                     <span className="text-orange-600">
-                                      ¥{servicePlanDiscounts[service.id]?.pro ? (
-                                        planDiscounts.pro.type === 'percentage' 
-                                          ? calculateDiscountedPrice(service.basePrice, planDiscounts.pro.value)
-                                          : Math.max(0, service.basePrice - planDiscounts.pro.value)
-                                      ) : service.basePrice}
+                                      ¥{(servicePlanDiscounts[service.id]?.pro ? calculateServicePlanPrice(service.basePrice, service.id, 'pro') : service.basePrice).toLocaleString()}
                                     </span>
                                   )}
                                 </div>
                               </td>
                             ))}
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <div className="text-xs text-gray-400">-</div>
-                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center"><div className="text-xs text-gray-400">-</div></td>
                           </tr>
                         )}
 
-                        {/* Pro Maxプラン行 */}
+                        {/* Pro Max Plan Row */}
                         {planDiscounts.proMax.enabled && (
                           <tr className="hover:bg-purple-50">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded">Pro Max</span>
-                                <button
-                                  onClick={() => handleServicePlanDiscountToggle(service.id, 'proMax')}
-                                  className="flex items-center ml-2"
-                                >
-                                  {servicePlanDiscounts[service.id]?.proMax ? (
-                                    <ToggleRight className="w-6 h-4 text-green-500" />
-                                  ) : (
-                                    <ToggleLeft className="w-6 h-4 text-gray-400" />
-                                  )}
+                                <button onClick={() => handleServicePlanDiscountToggle(service.id, 'proMax')} className="flex items-center ml-2">
+                                  {servicePlanDiscounts[service.id]?.proMax ? (<ToggleRight className="w-6 h-4 text-green-500" />) : (<ToggleLeft className="w-6 h-4 text-gray-400" />)}
                                 </button>
                               </div>
+                              {/* サービス別プラン割引設定 */}
+                              {servicePlanDiscounts[service.id]?.proMax && (
+                                <div className="mt-2 text-xs">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <select
+                                      value={servicePlanDiscounts[service.id].proMax.type || planDiscounts.proMax.type}
+                                      onChange={(e) => handleServicePlanDiscountChange(service.id, 'proMax', 'type', e.target.value)}
+                                      className="text-xs border border-gray-300 rounded px-1 py-0.5"
+                                    >
+                                      <option value="percentage">割引率(%)</option>
+                                      <option value="fixed">割引額(円)</option>
+                                    </select>
+                                    <input
+                                      type="number"
+                                      value={servicePlanDiscounts[service.id].proMax.value || planDiscounts.proMax.value}
+                                      onChange={(e) => handleServicePlanDiscountChange(service.id, 'proMax', 'value', parseInt(e.target.value))}
+                                      className="w-16 text-xs border border-gray-300 rounded px-1 py-0.5"
+                                      min="0"
+                                    />
+                                    <span className="text-gray-500">
+                                      {(servicePlanDiscounts[service.id].proMax.type || planDiscounts.proMax.type) === 'percentage' ? '%' : '円'}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-purple-600">
                                 {servicePlanDiscounts[service.id]?.proMax ? (
-                                  `¥${planDiscounts.proMax.type === 'percentage' 
-                                    ? calculateDiscountedPrice(service.basePrice, planDiscounts.proMax.value).toLocaleString()
-                                    : Math.max(0, service.basePrice - planDiscounts.proMax.value).toLocaleString()
-                                  }`
+                                  `¥${calculateServicePlanPrice(service.basePrice, service.id, 'proMax').toLocaleString()}`
                                 ) : (
                                   `¥${service.basePrice.toLocaleString()}`
                                 )}
@@ -820,33 +943,23 @@ const DynamicPricing = () => {
                             </td>
                             {discountTypes.map(({ key }) => (
                               <td key={key} className="px-6 py-4 whitespace-nowrap text-center">
-                                <div className="text-xs text-purple-600">
+                                <div className="text-xs">
                                   {service[`${key.replace('Discount', '')}DiscountEnabled`] && pricingSettings[key].enabled ? (
                                     <span className="text-green-600">
                                       ¥{Math.min(
                                         calculateDiscountedPrice(service.basePrice, pricingSettings[key].percentage),
-                                        servicePlanDiscounts[service.id]?.proMax ? (
-                                          planDiscounts.proMax.type === 'percentage' 
-                                            ? calculateDiscountedPrice(service.basePrice, planDiscounts.proMax.value)
-                                            : Math.max(0, service.basePrice - planDiscounts.proMax.value)
-                                        ) : service.basePrice
+                                        servicePlanDiscounts[service.id]?.proMax ? calculateServicePlanPrice(service.basePrice, service.id, 'proMax') : service.basePrice
                                       ).toLocaleString()}
                                     </span>
                                   ) : (
                                     <span className="text-purple-600">
-                                      ¥{servicePlanDiscounts[service.id]?.proMax ? (
-                                        planDiscounts.proMax.type === 'percentage' 
-                                          ? calculateDiscountedPrice(service.basePrice, planDiscounts.proMax.value)
-                                          : Math.max(0, service.basePrice - planDiscounts.proMax.value)
-                                      ) : service.basePrice}
+                                      ¥{(servicePlanDiscounts[service.id]?.proMax ? calculateServicePlanPrice(service.basePrice, service.id, 'proMax') : service.basePrice).toLocaleString()}
                                     </span>
                                   )}
                                 </div>
                               </td>
                             ))}
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <div className="text-xs text-gray-400">-</div>
-                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center"><div className="text-xs text-gray-400">-</div></td>
                           </tr>
                         )}
                       </React.Fragment>
