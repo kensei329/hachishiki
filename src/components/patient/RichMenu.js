@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, Gift, Phone, ArrowUpCircle, Bot, Settings } from 'lucide-react';
+import { MessageCircle, Gift, Phone, ArrowUpCircle, User, Settings, Circle } from 'lucide-react';
 
 const DENTIST_PHONE = '092-123-4567'; // 仮の電話番号
 
@@ -9,19 +9,18 @@ const RichMenu = () => {
 
   // チャット履歴サンプル
   const messages = [
-    { type: 'bot', icon: <Bot className="w-6 h-6 text-blue-500" />, text: 'こんにちは！ご予約やご相談はお気軽にどうぞ。' },
-    { type: 'user', text: 'AI歯科医相談を使いたいです。' },
-    { type: 'bot', icon: <Bot className="w-6 h-6 text-blue-500" />, text: 'AI歯科医相談は下のボタンからどうぞ！' },
+    { type: 'user', text: 'AI歯科医に相談したいです。' },
+    { type: 'bot', icon: <User className="w-6 h-6 text-blue-500" />, text: 'こんにちは、AI歯科医のマリアです。はち歯科医院 大野城店に通院中の上村さま、本日は何かお困りごとはございますか？\n\n（私は歯科医を補助するツールです。正確な診察や治療は歯科医院にて行います。また、本サービスでお伺いした内容は歯科医院に共有されますので、どうぞご安心ください。）' },
   ];
 
   // メニュー
   const menuItems = [
     {
-      id: 'ai',
-      icon: <MessageCircle className="w-7 h-7" />, 
-      label: 'AI歯科医に相談する',
-      color: 'bg-purple-600',
-      action: () => navigate('/patient/chat')
+      id: 'discount',
+      icon: <Circle className="w-7 h-7" />, 
+      label: 'お得な割引を使う',
+      color: 'bg-blue-600',
+      action: () => navigate('/patient/discount')
     },
     {
       id: 'benefit',
@@ -31,18 +30,25 @@ const RichMenu = () => {
       action: () => navigate('/patient/home')
     },
     {
-      id: 'phone',
-      icon: <Phone className="w-7 h-7" />, 
-      label: '歯科医院に電話する',
-      color: 'bg-green-600',
-      action: () => window.location.href = `tel:${DENTIST_PHONE}`
-    },
-    {
       id: 'upgrade',
       icon: <ArrowUpCircle className="w-7 h-7" />, 
       label: 'アップグレードする',
       color: 'bg-yellow-500',
       action: () => navigate('/patient/plans')
+    },
+    {
+      id: 'ai',
+      icon: <MessageCircle className="w-7 h-7" />, 
+      label: 'AI歯科医に相談する',
+      color: 'bg-purple-600',
+      action: () => navigate('/patient/chat')
+    },
+    {
+      id: 'phone',
+      icon: <Phone className="w-7 h-7" />, 
+      label: '歯科医院に電話する',
+      color: 'bg-green-600',
+      action: () => window.location.href = `tel:${DENTIST_PHONE}`
     },
   ];
 
@@ -81,8 +87,22 @@ const RichMenu = () => {
 
       {/* リッチメニュー */}
       <div className="bg-white border-t border-gray-200">
+        {/* 上部3つのボタンを横1列で表示 */}
+        <div className="grid grid-cols-3 gap-0">
+          {menuItems.slice(0, 3).map((item) => (
+            <button
+              key={item.id}
+              onClick={item.action}
+              className={`${item.color} text-white p-4 flex flex-col items-center justify-center hover:opacity-90 transition-opacity`}
+            >
+              {item.icon}
+              <span className="text-xs font-medium mt-1 text-center leading-tight">{item.label}</span>
+            </button>
+          ))}
+        </div>
+        {/* 下部2つのボタン */}
         <div className="grid grid-cols-2 gap-0">
-          {menuItems.map((item) => (
+          {menuItems.slice(3, 5).map((item) => (
             <button
               key={item.id}
               onClick={item.action}

@@ -9,62 +9,71 @@ const plans = [
     price: 980,
     color: 'border-gray-200',
     features: [
-      '月1回の定期検診',
-      'AIチャット相談',
-      '基本的な予防ケア',
-      '治療計画の確認',
-      'オンライン予約'
+      'AI歯科医相談',
+      '時間帯別割引',
+      { name: 'お口の細菌バランス検査', price: '¥5,500相当' },
+      { name: '唾液検査', price: '¥5,500相当' },
+      { name: '口臭検査', price: '¥5,500相当' },
+      { name: '血糖値検査', price: '¥5,500相当' }
     ],
     button: '加入中',
     highlight: false,
     badge: null,
-    disabled: true
+    disabled: true,
+    yearlySavings: '年間 最大 ¥22,000分お得'
   },
   {
-    id: 'silver',
+    id: 'pro',
     name: 'Pro',
     price: 1980,
     color: 'border-blue-400',
     features: [
-      'ベーシックプランの全機能',
-      'ファストパス予約',
-      '専門スタッフ指名（割引あり）',
-      'プロクリーニング年1回',
-      '歯科グッズ10%割引'
+      'ベーシック内容すべて',
+      { name: 'セラミック1本10%OFF', price: null },
+      { name: 'パウダーメンテナンス', price: '¥5,500相当' },
+      { name: '口腔ケア商品 月1回プレゼント', price: null }
     ],
     button: '今すぐ加入',
     highlight: true,
     badge: '人気No.1',
-    disabled: false
+    disabled: false,
+    yearlySavings: '年間 最大 ¥88,000分お得'
   },
   {
-    id: 'gold',
+    id: 'proMax',
     name: 'Pro Max',
     price: 2980,
     color: 'border-yellow-400',
     features: [
-      'Proプランの全機能',
-      '専門スタッフ指名無料',
-      'VIP優先予約',
-      'ホワイトニング年2回',
-      '歯科グッズ20%割引',
-      '口腔ケア用品プレゼント',
-      '特別特典: 24時間緊急対応, 歯科衛生士アサイン, 特別診療室利用可'
+      'Pro内容すべて',
+      { name: 'ホームホワイトニング', price: '¥10,000割引' },
+      { name: 'オーラルセラピー', price: '¥3,300相当' },
+      { name: 'リップクレンジング', price: '¥5,500相当' }
     ],
     button: '今すぐ加入',
     highlight: false,
     badge: 'プレミアム',
-    disabled: false
+    disabled: false,
+    yearlySavings: '年間 最大 ¥142,000分お得'
   }
 ];
+
+const freePlan = {
+  id: 'free',
+  name: 'フリープラン',
+  price: 0,
+  features: [
+    'AI歯科医相談'
+  ]
+};
 
 const Plans = () => {
   const [selected, setSelected] = useState('basic');
   const [isYearly, setIsYearly] = useState(false);
   const navigate = useNavigate();
 
-  const getPrice = (price) => isYearly ? price * 12 * 0.9 : price;
-  const getPriceLabel = () => isYearly ? '年額（10%OFF）' : '月額';
+  const getPrice = (price) => isYearly ? price * 10 : price;
+  const getPriceLabel = () => isYearly ? '年額（2ヶ月分お得）' : '月額';
 
   const handleJoin = (planId) => {
     setSelected(planId);
@@ -110,7 +119,7 @@ const Plans = () => {
                 <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-300 peer-checked:translate-x-6"></div>
               </label>
               <span className={`text-sm font-medium ${isYearly ? 'text-blue-600' : 'text-gray-500'}`}>
-                年額払い（10%OFF）
+                年額払い（2ヶ月分お得）
               </span>
             </div>
           </div>
@@ -125,41 +134,81 @@ const Plans = () => {
             className={`relative bg-white border-2 ${plan.color} rounded-2xl shadow-md flex flex-col items-center p-8 transition-all ${plan.highlight ? 'ring-2 ring-blue-400 scale-105 z-10' : ''}`}
           >
             {plan.badge && (
-              <span className={`absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold ${plan.id === 'gold' ? 'bg-yellow-400 text-white' : 'bg-blue-500 text-white'}`}>
+              <span className={`absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold ${plan.id === 'proMax' ? 'bg-yellow-400 text-white' : 'bg-blue-500 text-white'}`}>
                 {plan.badge}
               </span>
             )}
             <h2 className="text-xl font-bold mb-2 flex items-center">
               {plan.id === 'basic' && <span className="mr-2">🛡️</span>}
-              {plan.id === 'silver' && <span className="mr-2">⭐</span>}
-              {plan.id === 'gold' && <span className="mr-2">👑</span>}
+              {plan.id === 'pro' && <span className="mr-2">⭐</span>}
+              {plan.id === 'proMax' && <span className="mr-2">👑</span>}
               {plan.name}
             </h2>
             <div className="text-3xl font-extrabold mb-2 text-gray-900">
               ¥{getPrice(plan.price).toLocaleString()}
               <span className="text-base font-medium text-gray-500">/{isYearly ? '年' : '月'}</span>
             </div>
+            {/* 年間お得額表示 */}
+            <div className="text-center mb-4">
+              <div className="bg-green-100 border border-green-300 rounded-lg px-3 py-2">
+                <span className="text-sm font-bold text-green-700">{plan.yearlySavings}</span>
+              </div>
+            </div>
             <ul className="text-left mb-6 space-y-2">
               {plan.features.map((f, i) => (
-                <li key={i} className="flex items-center text-gray-700">
-                  <span className="text-green-500 mr-2">✔</span>{f}
+                <li key={i} className="flex items-start text-gray-700">
+                  <span className="text-green-500 mr-2 mt-0.5 flex-shrink-0">✔</span>
+                  <div>
+                    {typeof f === 'string' ? (
+                      <span>{f}</span>
+                    ) : (
+                      <>
+                        <div>{f.name}</div>
+                        {f.price && (
+                          <div className="text-sm text-gray-500">（通常{f.price}）</div>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
-            <div className="flex w-full gap-2 mt-2">
+            <div className="w-full">
               <button
-                className={`flex-1 py-2 rounded-lg font-bold text-white ${plan.disabled ? 'bg-gray-300 cursor-not-allowed' : plan.id === 'gold' ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600' : plan.id === 'silver' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400'} mb-0`}
+                className={`w-full py-2 rounded-lg font-bold text-white ${plan.disabled ? 'bg-gray-300 cursor-not-allowed' : plan.id === 'proMax' ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600' : plan.id === 'pro' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400'} mb-0`}
                 disabled={plan.disabled}
                 onClick={() => !plan.disabled && handleJoin(plan.id)}
               >
                 {plan.button}
               </button>
-              <button className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm bg-gray-50 mb-0" disabled>
-                現地決済で加入
-              </button>
             </div>
           </div>
         ))}
+      </div>
+
+      {/* フリープラン（小さく表示） */}
+      <div className="max-w-4xl mx-auto mb-8 px-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
+          <div className="text-sm text-gray-600 mb-2">
+            💡 まずは無料でお試し
+          </div>
+          <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+            <span className="flex items-center">
+              <span className="text-green-500 mr-1">✔</span>
+              {freePlan.features[0]}
+            </span>
+          </div>
+          <div className="mt-3">
+            <span className="text-lg font-bold text-gray-700">{freePlan.name}</span>
+            <span className="text-sm text-gray-500 ml-2">¥{freePlan.price}/月</span>
+          </div>
+          <button
+            onClick={() => handleJoin(freePlan.id)}
+            className="mt-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm transition-colors"
+          >
+            無料で始める
+          </button>
+        </div>
       </div>
 
       {/* セラミック治療お得度PR */}

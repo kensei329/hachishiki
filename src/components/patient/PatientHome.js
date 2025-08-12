@@ -7,30 +7,43 @@ const PatientHome = () => {
   const [benefits, setBenefits] = useState([
     {
       id: 1,
-      name: '指名無料',
+      name: 'お口の細菌バランス検査',
       icon: Users,
-      remaining: 3,
-      total: 5,
-      description: '好きなスタッフを指名できます',
-      expiry: '2025年10月31日まで'
+      remaining: 1,
+      total: 1,
+      description: '口腔内の細菌バランスを検査します（¥5,500相当）',
+      expiry: '2025年10月31日まで',
+      isRequested: false
     },
     {
       id: 2,
-      name: 'エアフロー',
+      name: '唾液検査',
       icon: Sparkles,
-      remaining: 2,
-      total: 3,
-      description: '歯面クリーニング',
-      expiry: '2025年10月31日まで'
+      remaining: 1,
+      total: 1,
+      description: '唾液の成分を検査します（¥5,500相当）',
+      expiry: '2025年10月31日まで',
+      isRequested: false
     },
     {
       id: 3,
-      name: 'ホワイトニング',
+      name: '口臭検査',
       icon: Crown,
       remaining: 1,
-      total: 2,
-      description: '歯の漂白・美白',
-      expiry: '2025年10月31日まで'
+      total: 1,
+      description: '口臭の原因を検査します（¥5,500相当）',
+      expiry: '2025年10月31日まで',
+      isRequested: false
+    },
+    {
+      id: 4,
+      name: '血糖値検査',
+      icon: Crown,
+      remaining: 1,
+      total: 1,
+      description: '血糖値を検査します（¥5,500相当）',
+      expiry: '2025年10月31日まで',
+      isRequested: false
     }
   ]);
   const [showConfirm, setShowConfirm] = useState({ open: false, idx: null });
@@ -45,13 +58,13 @@ const PatientHome = () => {
     if (yes && showConfirm.idx !== null) {
       const benefit = benefits[showConfirm.idx];
       setBenefits(prev => prev.map((b, i) =>
-        i === showConfirm.idx && b.remaining > 0
-          ? { ...b, remaining: b.remaining - 1 }
+        i === showConfirm.idx
+          ? { ...b, isRequested: true }
           : b
       ));
       
-      // 祝いのアニメーションを開始
-      setCelebrationText(`${benefit.name}をご利用いただきありがとうございます！`);
+      // 申請完了のアニメーションを開始
+      setCelebrationText('歯科医院に利用を申請しました。次回来院時にスタッフと計画を立ててください。');
       setShowCelebration(true);
       
       // 3秒後にアニメーションを隠す
@@ -63,11 +76,11 @@ const PatientHome = () => {
   };
 
   const usageHistory = [
-    { date: '2024/10/15', service: '指名無料', status: '使用済', icon: Users },
-    { date: '2024/09/20', service: 'エアフロー', status: '使用済', icon: Sparkles },
-    { date: '2024/08/10', service: '指名無料', status: '使用済', icon: Users },
-    { date: '2024/07/25', service: 'ホワイトニング', status: '使用済', icon: Crown },
-    { date: '2024/06/15', service: 'エアフロー', status: '使用済', icon: Sparkles },
+    { date: '2024/10/15', service: 'お口の細菌バランス検査', status: '使用済', icon: Users },
+    { date: '2024/09/20', service: '唾液検査', status: '使用済', icon: Sparkles },
+    { date: '2024/08/10', service: '口臭検査', status: '使用済', icon: Crown },
+    { date: '2024/07/25', service: '血糖値検査', status: '使用済', icon: Crown },
+    { date: '2024/06/15', service: 'AI歯科医相談', status: '利用中', icon: Users },
   ];
 
   return (
@@ -107,7 +120,7 @@ const PatientHome = () => {
                 <Crown className="w-8 h-8 text-yellow-300 mr-3" />
                 歯知クラブ特典ラウンジ
               </h1>
-              <p className="text-blue-200 text-sm mt-1">田中 太郎さん - Pro会員</p>
+              <p className="text-blue-200 text-sm mt-1">田中 太郎さん - ベーシック会員</p>
             </div>
             <div className="text-right">
               <div className="flex items-center text-yellow-300">
@@ -135,8 +148,8 @@ const PatientHome = () => {
           </div>
           <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 rounded-xl mb-4 shadow-lg">
             <p className="text-white">
-              <strong className="text-yellow-200 text-lg">歯知クラブ Pro</strong><br />
-              <span className="text-blue-100">月額: ¥1,980</span><br />
+              <strong className="text-yellow-200 text-lg">歯知クラブ ベーシック</strong><br />
+              <span className="text-blue-100">月額: ¥980</span><br />
               <span className="text-blue-100">次回更新: 2025年11月15日</span>
             </p>
           </div>
@@ -205,14 +218,21 @@ const PatientHome = () => {
                       })}
                     </div>
                     <div className="flex flex-col items-end">
-                      <button
-                        className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
-                        onClick={() => handleUseBenefit(idx)}
-                        disabled={benefit.remaining === 0}
-                      >
-                        利用する
-                      </button>
-                      <span className="text-xs text-red-500 mt-2">利用するボタンはスタッフが操作してください</span>
+                      {benefit.isRequested ? (
+                        <div className="flex items-center px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg border border-yellow-300">
+                          <Clock className="w-4 h-4 mr-2" />
+                          <span className="text-sm font-medium">申請中</span>
+                        </div>
+                      ) : (
+                        <button
+                          className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
+                          onClick={() => handleUseBenefit(idx)}
+                          disabled={benefit.remaining === 0}
+                        >
+                          利用する
+                        </button>
+                      )}
+                      <span className="text-xs text-blue-600 mt-2">申請中の情報は歯科医院に送信完了しています</span>
                     </div>
                   </div>
                 </div>
@@ -298,7 +318,7 @@ const PatientHome = () => {
       {showConfirm.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
           <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-xs w-full border border-gray-200">
-            <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">利用しますか？</h3>
+            <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">利用申請をしますか？</h3>
             <div className="flex justify-center gap-4">
               <button
                 className="px-6 py-3 rounded-xl bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all duration-300"

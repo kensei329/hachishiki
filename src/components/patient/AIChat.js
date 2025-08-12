@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, Bot, User } from 'lucide-react';
+import { ArrowLeft, Send, User } from 'lucide-react';
 
 const AIChat = () => {
   const navigate = useNavigate();
@@ -8,21 +8,15 @@ const AIChat = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      type: 'bot',
-      content: 'こんにちは！AI歯科医です。歯に関するご相談がございましたらお聞かせください。',
+      type: 'user',
+      content: 'AI歯科医に相談したいです。',
       timestamp: '14:30'
     },
     {
       id: 2,
-      type: 'user',
-      content: '歯間ブラシが折れてしまいました。どうしたらいいでしょうか？',
-      timestamp: '14:32'
-    },
-    {
-      id: 3,
       type: 'bot',
-      content: '歯間ブラシが折れた場合の対処法をお教えします。\n\n1. 折れた部分が見える場合は、つまようじや細いピンセットで慎重に取り除いてください\n2. 無理に取ろうとせず、取れない場合は歯科医院にご相談ください\n3. 今後は適切なサイズの歯間ブラシを使用することをお勧めします\n\nこの件について、担当医にも報告させていただきました。ご心配でしたら早めの受診をお勧めします。',
-      timestamp: '14:33'
+      content: 'こんにちは、AI歯科医のマリアです。はち歯科医院 大野城店に通院中の上村さま、本日は何かお困りごとはございますか？\n\n（私は歯科医を補助するツールです。正確な診察や治療は歯科医院にて行います。また、本サービスでお伺いした内容は歯科医院に共有されますので、どうぞご安心ください。）',
+      timestamp: '14:31'
     }
   ]);
 
@@ -63,7 +57,7 @@ const AIChat = () => {
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="flex items-center">
-          <Bot className="w-6 h-6 mr-2" />
+          <User className="w-6 h-6 mr-2" />
           <div>
             <h1 className="text-lg font-semibold">AI歯科医</h1>
             <p className="text-purple-200 text-sm">オンライン</p>
@@ -83,7 +77,7 @@ const AIChat = () => {
               }`}>
                 <div className="flex items-start mb-1">
                   {msg.type === 'bot' && (
-                    <Bot className="w-4 h-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" />
+                    <User className="w-4 h-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" />
                   )}
                   {msg.type === 'user' && (
                     <User className="w-4 h-4 text-white mr-2 mt-0.5 flex-shrink-0" />

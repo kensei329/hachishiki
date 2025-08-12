@@ -10,7 +10,7 @@ const Settings = () => {
 
   // 加入者情報（サンプルデータ）
   const memberInfo = {
-    patientNumber: 'P-2024-0123',
+    patientNumber: '3901',
     name: '田中 太郎',
     plan: '歯知クラブ Pro',
     monthlyFee: '¥1,980',
@@ -185,6 +185,7 @@ const Settings = () => {
                     onChange={(e) => setNextYearPlan(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-800 font-medium appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
+                    <option value="free">フリープラン (¥0/月)</option>
                     <option value="basic">ベーシック (¥980/月)</option>
                     <option value="pro">Pro (¥1,980/月)</option>
                     <option value="pro-max">Pro Max (¥2,980/月)</option>
@@ -238,7 +239,7 @@ const Settings = () => {
                 <div className="text-green-800 font-bold text-lg mb-2">設定内容確認</div>
                 <div className="text-green-700 space-y-1">
                   <div>翌年度プラン: <span className="font-bold">
-                    {nextYearPlan === 'basic' ? 'ベーシック' : nextYearPlan === 'pro' ? 'Pro' : 'Pro Max'}
+                    {nextYearPlan === 'free' ? 'フリープラン' : nextYearPlan === 'basic' ? 'ベーシック' : nextYearPlan === 'pro' ? 'Pro' : 'Pro Max'}
                   </span></div>
                   <div>支払い方法: <span className="font-bold">
                     {nextYearPayment === 'monthly' ? '月払い' : '年払い（10%OFF）'}
@@ -258,6 +259,20 @@ const Settings = () => {
                     <li>ダウングレードの場合、特典の利用可能回数は変更後のプランに合わせて調整されます</li>
                   </ul>
                 </div>
+              </div>
+
+              {/* プランを確認するボタン */}
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => navigate('/patient/plans')}
+                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center mx-auto"
+                >
+                  <Crown className="w-5 h-5 mr-2" />
+                  プランを確認する
+                </button>
+                <p className="text-sm text-gray-600 mt-2">
+                  現在のプラン詳細や他プランとの比較を確認できます
+                </p>
               </div>
             </div>
           </div>
