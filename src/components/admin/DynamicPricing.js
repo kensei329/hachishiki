@@ -59,24 +59,24 @@ const DynamicPricing = () => {
   // 各サービスでのプラン割引の有効/無効状態を管理（一括設定の上書き用）
   const [servicePlanDiscounts, setServicePlanDiscounts] = useState({
     1: { // 矯正
-      basic: true,
-      pro: true,
-      proMax: true
+      basic: { enabled: true, type: 'percentage', value: 0 },
+      pro: { enabled: true, type: 'percentage', value: 0 },
+      proMax: { enabled: true, type: 'percentage', value: 0 }
     },
     2: { // ホワイトニング
-      basic: true,
-      pro: true,
-      proMax: true
+      basic: { enabled: true, type: 'percentage', value: 0 },
+      pro: { enabled: true, type: 'percentage', value: 0 },
+      proMax: { enabled: true, type: 'percentage', value: 0 }
     },
     3: { // セラミック
-      basic: true,
-      pro: true,
-      proMax: true
+      basic: { enabled: true, type: 'percentage', value: 0 },
+      pro: { enabled: true, type: 'percentage', value: 0 },
+      proMax: { enabled: true, type: 'percentage', value: 0 }
     },
     4: { // インプラント
-      basic: true,
-      pro: true,
-      proMax: true
+      basic: { enabled: true, type: 'percentage', value: 0 },
+      pro: { enabled: true, type: 'percentage', value: 0 },
+      proMax: { enabled: true, type: 'percentage', value: 0 }
     }
   });
 
@@ -214,20 +214,20 @@ const DynamicPricing = () => {
   const calculateServicePlanPrice = (basePrice, serviceId, planType) => {
     const serviceDiscount = servicePlanDiscounts[serviceId]?.[planType];
     
+    // 個別設定が有効でない場合は一括設定を使用しない
+    if (!serviceDiscount || !serviceDiscount.enabled) {
+      return basePrice;
+    }
+    
     // 個別設定がある場合は個別設定を使用、ない場合は一括設定を使用
-    if (serviceDiscount && serviceDiscount.enabled !== undefined) {
-      if (!serviceDiscount.enabled) return basePrice;
-      
-      const discountType = serviceDiscount.type || planDiscounts[planType].type;
-      const discountValue = serviceDiscount.value !== undefined ? serviceDiscount.value : planDiscounts[planType].value;
-      
-      if (discountType === 'percentage') {
-        return Math.max(0, basePrice * (1 - discountValue / 100));
+    if (serviceDiscount.type !== undefined && serviceDiscount.value !== undefined) {
+      if (serviceDiscount.type === 'percentage') {
+        return Math.max(0, basePrice * (1 - serviceDiscount.value / 100));
       } else {
-        return Math.max(0, basePrice - discountValue);
+        return Math.max(0, basePrice - serviceDiscount.value);
       }
     } else {
-      // 一括設定のみ使用
+      // 一括設定の値を使用
       if (!planDiscounts[planType].enabled) return basePrice;
       
       if (planDiscounts[planType].type === 'percentage') {
@@ -308,8 +308,9 @@ const DynamicPricing = () => {
         newState[serviceId] = {
           ...newState[serviceId],
           [planKey]: {
-            ...newState[serviceId][planKey],
-            enabled: true
+            enabled: true,
+            type: planDiscounts[planKey].type,
+            value: planDiscounts[planKey].value
           }
         };
       }
