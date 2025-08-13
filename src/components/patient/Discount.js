@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, DollarSign, Clock, CreditCard, CheckCircle, Eye } from 'lucide-react';
+import { ArrowLeft, DollarSign, Clock, CreditCard, CheckCircle, Eye, Image } from 'lucide-react';
+import { useImages } from '../../contexts/ImageContext';
 
 const Discount = () => {
   const navigate = useNavigate();
+  const { getCurrentImage } = useImages();
   const [selectedService, setSelectedService] = useState(null);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
@@ -66,6 +68,7 @@ const Discount = () => {
     {
       id: 1,
       name: '矯正',
+      serviceKey: 'orthodontics',
       basePrice: 800000,
       weekdayDiscount: {
         enabled: true,
@@ -95,6 +98,7 @@ const Discount = () => {
     {
       id: 2,
       name: 'ホワイトニング',
+      serviceKey: 'whitening',
       basePrice: 15000,
       weekdayDiscount: {
         enabled: true,
@@ -124,6 +128,7 @@ const Discount = () => {
     {
       id: 3,
       name: 'セラミック',
+      serviceKey: 'ceramic',
       basePrice: 70000,
       weekdayDiscount: {
         enabled: true,
@@ -153,6 +158,7 @@ const Discount = () => {
     {
       id: 4,
       name: 'インプラント',
+      serviceKey: 'implant',
       basePrice: 350000,
       weekdayDiscount: {
         enabled: false,
@@ -343,12 +349,37 @@ const Discount = () => {
       <div className="space-y-4">
         {discountServices.map((service) => (
           <div key={service.id} className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-800">{service.name}</h3>
-              <div className="text-right">
-                <div className="text-gray-600 text-sm">通常価格: ¥{service.basePrice.toLocaleString()}</div>
-                <div className="text-blue-600 text-sm font-medium">
-                  {userPlan.name}価格: ¥{calculatePlanPrice(service.basePrice, userPlan.type).toLocaleString()}
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start space-x-4">
+                {/* サービス画像 */}
+                <div className="flex-shrink-0">
+                  <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                    {getCurrentImage(service.serviceKey) ? (
+                      <img
+                        src={getCurrentImage(service.serviceKey)}
+                        alt={service.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <Image className="w-8 h-8" />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* サービス情報 */}
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">{service.name}</h3>
+                  <div className="text-sm text-gray-600">
+                    通常価格: ¥{service.basePrice.toLocaleString()}
+                  </div>
+                  <div className="text-blue-600 text-sm font-medium">
+                    {userPlan.name}価格: ¥{calculatePlanPrice(service.basePrice, userPlan.type).toLocaleString()}
+                  </div>
                 </div>
               </div>
             </div>

@@ -9,7 +9,7 @@ const plans = [
     price: 980,
     color: 'border-gray-200',
     features: [
-      'AI歯科医相談',
+      'AI歯科医相談(1日10回)',
       '時間帯別割引',
       { name: 'お口の細菌バランス検査', price: '¥5,500相当' },
       { name: '唾液検査', price: '¥5,500相当' },
@@ -63,7 +63,7 @@ const freePlan = {
   name: 'フリープラン',
   price: 0,
   features: [
-    'AI歯科医相談'
+    'AI歯科医相談(1日10回)'
   ]
 };
 

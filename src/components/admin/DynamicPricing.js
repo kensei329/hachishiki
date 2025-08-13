@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import AdminNav from './AdminNav';
-import { Clock, DollarSign, Save, Calendar, ToggleLeft, ToggleRight, Plus, Edit, Trash2, X, Crown } from 'lucide-react';
+import { Clock, DollarSign, Save, Calendar, ToggleLeft, ToggleRight, Plus, Edit, Trash2, X, Crown, Image, Upload, RotateCcw } from 'lucide-react';
+import { useImages } from '../../contexts/ImageContext';
 
 const DynamicPricing = () => {
+  const { serviceImages, updateServiceImage, resetServiceImage, getCurrentImage, hasCustomImage } = useImages();
   const [pricingSettings, setPricingSettings] = useState({
     weekdayDiscount: {
       enabled: true,
@@ -88,6 +90,7 @@ const DynamicPricing = () => {
     {
       id: 1,
       name: '矯正',
+      serviceKey: 'orthodontics',
       basePrice: 800000,
       weekdayDiscountEnabled: true,
       saturdayDiscountEnabled: true,
@@ -97,6 +100,7 @@ const DynamicPricing = () => {
     {
       id: 2,
       name: 'ホワイトニング',
+      serviceKey: 'whitening',
       basePrice: 15000,
       weekdayDiscountEnabled: true,
       saturdayDiscountEnabled: true,
@@ -106,6 +110,7 @@ const DynamicPricing = () => {
     {
       id: 3,
       name: 'セラミック',
+      serviceKey: 'ceramic',
       basePrice: 70000,
       weekdayDiscountEnabled: true,
       saturdayDiscountEnabled: true,
@@ -115,6 +120,7 @@ const DynamicPricing = () => {
     {
       id: 4,
       name: 'インプラント',
+      serviceKey: 'implant',
       basePrice: 350000,
       weekdayDiscountEnabled: false,
       saturdayDiscountEnabled: false,
@@ -184,6 +190,7 @@ const DynamicPricing = () => {
       setServices(prev => [...prev, {
         id: newId,
         name: newService.name,
+        serviceKey: newService.name.toLowerCase().replace(/\s+/g, ''),
         basePrice: newService.basePrice,
         weekdayDiscountEnabled: false,
         saturdayDiscountEnabled: false,
@@ -687,8 +694,54 @@ const DynamicPricing = () => {
                         {/* フリープラン行 */}
                         <tr className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap" rowSpan={4}>
-                            <div className="flex items-center justify-center h-full">
-                              <div className="text-sm font-medium text-gray-900">{service.name}</div>
+                            <div className="flex items-center space-x-3">
+                              {/* サービス画像 */}
+                              <div className="flex-shrink-0">
+                                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                                  {getCurrentImage(service.serviceKey) ? (
+                                    <img
+                                      src={getCurrentImage(service.serviceKey)}
+                                      alt={service.name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                    <Image className="w-5 h-5" />
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* サービス名と画像管理 */}
+                              <div className="flex-1">
+                                <div className="text-sm font-medium text-gray-900 mb-2">{service.name}</div>
+                                <div className="flex space-x-2">
+                                  <label className="cursor-pointer">
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => updateServiceImage(service.serviceKey, e.target.files[0])}
+                                      className="hidden"
+                                    />
+                                    <div className="flex items-center text-xs text-blue-600 hover:text-blue-700">
+                                      <Upload className="w-3 h-3 mr-1" />
+                                      画像変更
+                                    </div>
+                                  </label>
+                                  {hasCustomImage(service.serviceKey) && (
+                                    <button
+                                      onClick={() => resetServiceImage(service.serviceKey)}
+                                      className="flex items-center text-xs text-red-600 hover:text-red-700"
+                                    >
+                                      <RotateCcw className="w-3 h-3 mr-1" />
+                                      リセット
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">

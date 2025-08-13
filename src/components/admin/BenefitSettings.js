@@ -15,7 +15,7 @@ const BenefitSettings = () => {
   // プラン別特典設定
   const [planBenefits, setPlanBenefits] = useState({
     basic: [
-      { id: 1, name: 'AI歯科医相談', count: 1, description: 'AIによる歯科相談サービス' },
+      { id: 1, name: 'AI歯科医相談(1日10回)', count: 1, description: 'AIによる歯科相談サービス（1日10回まで）' },
       { id: 2, name: '時間帯別割引', count: 1, description: '特定時間帯の治療割引' },
       { id: 3, name: 'お口の細菌バランス検査', count: 1, description: '口腔内の細菌バランスを検査（¥5,500相当）' },
       { id: 4, name: '唾液検査', count: 1, description: '唾液の成分を検査（¥5,500相当）' },
@@ -23,7 +23,7 @@ const BenefitSettings = () => {
       { id: 6, name: '血糖値検査', count: 1, description: '血糖値を検査（¥5,500相当）' },
     ],
     pro: [
-      { id: 1, name: 'AI歯科医相談', count: 1, description: 'AIによる歯科相談サービス' },
+      { id: 1, name: 'AI歯科医相談(1日10回)', count: 1, description: 'AIによる歯科相談サービス（1日10回まで）' },
       { id: 2, name: '時間帯別割引', count: 1, description: '特定時間帯の治療割引' },
       { id: 3, name: 'お口の細菌バランス検査', count: 1, description: '口腔内の細菌バランスを検査（¥5,500相当）' },
       { id: 4, name: '唾液検査', count: 1, description: '唾液の成分を検査（¥5,500相当）' },
@@ -34,7 +34,7 @@ const BenefitSettings = () => {
       { id: 9, name: '口腔ケア商品プレゼント', count: 12, description: '口腔ケア商品を月1回プレゼント' },
     ],
     proMax: [
-      { id: 1, name: 'AI歯科医相談', count: 1, description: 'AIによる歯科相談サービス' },
+      { id: 1, name: 'AI歯科医相談(1日10回)', count: 1, description: 'AIによる歯科相談サービス（1日10回まで）' },
       { id: 2, name: '時間帯別割引', count: 1, description: '特定時間帯の治療割引' },
       { id: 3, name: 'お口の細菌バランス検査', count: 1, description: '口腔内の細菌バランスを検査（¥5,500相当）' },
       { id: 4, name: '唾液検査', count: 1, description: '唾液の成分を検査（¥5,500相当）' },

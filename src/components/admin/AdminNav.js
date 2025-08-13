@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAdminAuth } from '../../contexts/AdminAuthContext';
 import { 
   LayoutDashboard, 
   Gift, 
@@ -8,12 +9,15 @@ import {
   Settings,
   Menu,
   X,
-  ChevronDown
+  ChevronDown,
+  LogOut,
+  User
 } from 'lucide-react';
 
 const AdminNav = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { adminEmail, logout } = useAdminAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedStore, setSelectedStore] = useState('大野城店');
 
@@ -161,6 +165,19 @@ const AdminNav = ({ children }) => {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center text-sm text-gray-700">
+                <User className="w-4 h-4 mr-2" />
+                {adminEmail}
+              </div>
+              <button
+                onClick={logout}
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                ログアウト
+              </button>
             </div>
           </div>
         </div>

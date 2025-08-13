@@ -17,6 +17,10 @@ import DynamicPricing from './components/admin/DynamicPricing';
 import PopPrintSettings from './components/admin/PopPrintSettings';
 import PlanManagement from './components/admin/PlanManagement';
 import AdminSettings from './components/admin/Settings';
+import AdminLogin from './components/admin/AdminLogin';
+import ProtectedRoute from './components/admin/ProtectedRoute';
+import { AdminAuthProvider } from './contexts/AdminAuthContext';
+import { ImageProvider } from './contexts/ImageContext';
 
 // トップページコンポーネント
 const TopPage = () => {
@@ -52,6 +56,13 @@ const TopPage = () => {
         <div className="mb-10 flex flex-col md:flex-row justify-center items-center gap-4">
           <a href="/patient/plans" className="btn-primary text-center w-64">患者向けプラン比較画面を見る</a>
           <a href="/admin/plans" className="btn-secondary text-center w-64">歯科医院向けプラン管理画面を見る</a>
+        </div>
+        
+        {/* ★ 追加: 管理画面ログインへのリンク ★ */}
+        <div className="mb-10 flex justify-center">
+          <a href="/admin/login" className="btn-primary text-center w-64 bg-green-600 hover:bg-green-700">
+            歯科医院向け管理画面にログイン
+          </a>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -179,30 +190,56 @@ const TopPage = () => {
 
 function App() {
   return (
-    <div className="App">
-      <Routes>
-        {/* トップページ */}
-        <Route path="/" element={<TopPage />} />
-        {/* 患者向けプラン比較画面 */}
-        <Route path="/patient/plans" element={<Plans />} />
-        {/* 歯科医院向けプラン管理画面 */}
-        <Route path="/admin/plans" element={<PlanManagement />} />
-        {/* 患者向けLIFF画面 */}
-        <Route path="/patient/auth" element={<PatientAuth />} />
-        <Route path="/patient/home" element={<PatientHome />} />
-        <Route path="/patient/chat" element={<AIChat />} />
-        <Route path="/patient/richmenu" element={<RichMenu />} />
-        <Route path="/patient/discount" element={<Discount />} />
-        {/* 患者向け設定画面 */}
-        <Route path="/patient/settings" element={<Settings />} />
-        {/* 歯科医院向けWeb管理画面 */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/benefits" element={<BenefitSettings />} />
-        <Route path="/admin/pricing" element={<DynamicPricing />} />
-        <Route path="/admin/pop" element={<PopPrintSettings />} />
-        <Route path="/admin/settings" element={<AdminSettings />} />
-      </Routes>
-    </div>
+    <AdminAuthProvider>
+      <ImageProvider>
+        <div className="App">
+          <Routes>
+          {/* トップページ */}
+          <Route path="/" element={<TopPage />} />
+          {/* 患者向けプラン比較画面 */}
+          <Route path="/patient/plans" element={<Plans />} />
+          {/* 歯科医院向けプラン管理画面 */}
+          <Route path="/admin/plans" element={<PlanManagement />} />
+          {/* 患者向けLIFF画面 */}
+          <Route path="/patient/auth" element={<PatientAuth />} />
+          <Route path="/patient/home" element={<PatientHome />} />
+          <Route path="/patient/chat" element={<AIChat />} />
+          <Route path="/patient/richmenu" element={<RichMenu />} />
+          <Route path="/patient/discount" element={<Discount />} />
+          {/* 患者向け設定画面 */}
+          <Route path="/patient/settings" element={<Settings />} />
+          {/* 歯科医院向けWeb管理画面 - ログイン画面 */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          {/* 歯科医院向けWeb管理画面 - 認証が必要な画面 */}
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/benefits" element={
+            <ProtectedRoute>
+              <BenefitSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/pricing" element={
+            <ProtectedRoute>
+              <DynamicPricing />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/pop" element={
+            <ProtectedRoute>
+              <PopPrintSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/settings" element={
+            <ProtectedRoute>
+              <AdminSettings />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </div>
+        </ImageProvider>
+      </AdminAuthProvider>
   );
 }
 
