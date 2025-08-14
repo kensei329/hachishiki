@@ -45,7 +45,7 @@ const OrderConfirmation = ({ selectedItem, onBack, onComplete }) => {
   // 契約更新日の計算
   const getContractRenewalDate = () => {
     const today = new Date();
-    return `${today.getMonth() + 1}月${today.getDate()}日`;
+    return `${today.getDate()}日`;
   };
 
   const handlePaymentChange = (field, value) => {
