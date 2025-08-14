@@ -43,9 +43,13 @@ const OrderConfirmation = ({ selectedItem, onBack, onComplete }) => {
   };
 
   // 契約更新日の計算
-  const getContractRenewalDate = () => {
+  const getContractRenewalDate = (isYearly = false) => {
     const today = new Date();
-    return `${today.getDate()}日`;
+    if (isYearly) {
+      return `${today.getMonth() + 1}月${today.getDate()}日`;
+    } else {
+      return `${today.getDate()}日`;
+    }
   };
 
   const handlePaymentChange = (field, value) => {
@@ -116,13 +120,13 @@ const OrderConfirmation = ({ selectedItem, onBack, onComplete }) => {
                   {selectedItem.isYearly ? (
                     <div className="text-sm text-yellow-700 space-y-2">
                       <p>本契約は、購入日から1年間（{getContractEndDate()}まで）有効です。</p>
-                      <p>利用料金は、毎年{getContractRenewalDate()}に{selectedItem.price.toLocaleString()}円（税込）が自動的に決済されます。</p>
+                      <p>利用料金は、毎年{getContractRenewalDate(true)}に{selectedItem.price.toLocaleString()}円（税込）が自動的に決済されます。</p>
                       <p>翌年度の自動更新設定は、設定画面よりいつでも変更できます。</p>
                     </div>
                   ) : (
                     <div className="text-sm text-yellow-700 space-y-2">
                       <p>本契約は、購入日から1年間（{getContractEndDate()}まで）有効です。</p>
-                      <p>利用料金は、毎月{getContractRenewalDate()}に{selectedItem.price.toLocaleString()}円（税込）が自動的に決済されます。</p>
+                      <p>利用料金は、毎月{getContractRenewalDate(false)}に{selectedItem.price.toLocaleString()}円（税込）が自動的に決済されます。</p>
                       <p>翌年度の自動更新設定は、設定画面よりいつでも変更できます。</p>
                     </div>
                   )}
