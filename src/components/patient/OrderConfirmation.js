@@ -95,7 +95,7 @@ const OrderConfirmation = ({ selectedItem, onBack, onComplete }) => {
                   <span className="text-lg font-medium text-gray-700">価格</span>
                   <span className="text-2xl font-bold text-blue-600">
                     ¥{selectedItem.price.toLocaleString()}
-                    {selectedItem.isYearly ? '/年' : '/月'}
+                    {selectedItem.oneTimePurchase ? '' : (selectedItem.isYearly ? '/年' : '/月')}
                   </span>
                 </div>
                 {selectedItem.originalPrice && (
@@ -103,29 +103,31 @@ const OrderConfirmation = ({ selectedItem, onBack, onComplete }) => {
                     <span className="text-sm text-gray-500">通常価格</span>
                     <span className="text-sm text-gray-500 line-through">
                       ¥{selectedItem.originalPrice.toLocaleString()}
-                      {selectedItem.isYearly ? '/年' : '/月'}
+                      {selectedItem.oneTimePurchase ? '' : (selectedItem.isYearly ? '/年' : '/月')}
                     </span>
                   </div>
                 )}
               </div>
 
               {/* 注意事項 */}
-              <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <h4 className="font-semibold text-yellow-800 mb-3">注意事項</h4>
-                {selectedItem.isYearly ? (
-                  <div className="text-sm text-yellow-700 space-y-2">
-                    <p>本契約は、購入日から1年間（{getContractEndDate()}まで）有効です。</p>
-                    <p>利用料金は、毎年{getContractRenewalDate()}に{selectedItem.price.toLocaleString()}円（税込）が自動的に決済されます。</p>
-                    <p>翌年度の自動更新設定は、設定画面よりいつでも変更できます。</p>
-                  </div>
-                ) : (
-                  <div className="text-sm text-yellow-700 space-y-2">
-                    <p>本契約は、購入日から1年間（{getContractEndDate()}まで）有効です。</p>
-                    <p>利用料金は、毎月{getContractRenewalDate()}に{selectedItem.price.toLocaleString()}円（税込）が自動的に決済されます。</p>
-                    <p>翌年度の自動更新設定は、設定画面よりいつでも変更できます。</p>
-                  </div>
-                )}
-              </div>
+              {!selectedItem.oneTimePurchase && (
+                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <h4 className="font-semibold text-yellow-800 mb-3">注意事項</h4>
+                  {selectedItem.isYearly ? (
+                    <div className="text-sm text-yellow-700 space-y-2">
+                      <p>本契約は、購入日から1年間（{getContractEndDate()}まで）有効です。</p>
+                      <p>利用料金は、毎年{getContractRenewalDate()}に{selectedItem.price.toLocaleString()}円（税込）が自動的に決済されます。</p>
+                      <p>翌年度の自動更新設定は、設定画面よりいつでも変更できます。</p>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-yellow-700 space-y-2">
+                      <p>本契約は、購入日から1年間（{getContractEndDate()}まで）有効です。</p>
+                      <p>利用料金は、毎月{getContractRenewalDate()}に{selectedItem.price.toLocaleString()}円（税込）が自動的に決済されます。</p>
+                      <p>翌年度の自動更新設定は、設定画面よりいつでも変更できます。</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex space-x-4">
@@ -376,7 +378,7 @@ const OrderConfirmation = ({ selectedItem, onBack, onComplete }) => {
                   <span className="text-lg font-medium text-gray-700">支払金額</span>
                   <span className="text-2xl font-bold text-green-600">
                     ¥{selectedItem.price.toLocaleString()}
-                    {selectedItem.isYearly ? '/年' : '/月'}
+                    {selectedItem.oneTimePurchase ? '' : (selectedItem.isYearly ? '/年' : '/月')}
                   </span>
                 </div>
               </div>

@@ -86,7 +86,8 @@ const Plans = () => {
       price: getPrice(plan.price),
       originalPrice: isYearly ? plan.price * 12 : null,
       type: plan.id,
-      isYearly: isYearly
+      isYearly: isYearly,
+      oneTimePurchase: false
     });
     setShowOrderConfirmation(true);
   };

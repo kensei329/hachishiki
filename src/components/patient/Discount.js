@@ -195,7 +195,8 @@ const Discount = () => {
       originalPrice: service.basePrice,
       discountType: discountType,
       discountPercentage: discount.percentage,
-      serviceId: service.id
+      serviceId: service.id,
+      oneTimePurchase: true
     });
     setShowOrderConfirmation(true);
   };
