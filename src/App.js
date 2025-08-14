@@ -21,6 +21,7 @@ import AdminLogin from './components/admin/AdminLogin';
 import ProtectedRoute from './components/admin/ProtectedRoute';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
 import { ImageProvider } from './contexts/ImageContext';
+import OrderConfirmation from './components/patient/OrderConfirmation';
 
 // トップページコンポーネント
 const TopPage = () => {

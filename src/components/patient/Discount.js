@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, DollarSign, Clock, CreditCard, CheckCircle, Eye, Image } from 'lucide-react';
 import { useImages } from '../../contexts/ImageContext';
+import OrderConfirmation from './OrderConfirmation';
 
 const Discount = () => {
   const navigate = useNavigate();
   const { getCurrentImage } = useImages();
   const [selectedService, setSelectedService] = useState(null);
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentCompleted, setPaymentCompleted] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('credit');
+  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
 
   // ユーザーのプラン情報（実際の実装ではAPIから取得）
   const userPlan = {
@@ -188,18 +187,20 @@ const Discount = () => {
   ];
 
   const handleServiceSelect = (service, discountType) => {
-    setSelectedService({ ...service, selectedDiscount: discountType });
-    setShowPayment(true);
+    const discount = service[discountType];
+    setSelectedService({
+      name: service.name,
+      description: `${discount.timeSlot}割引適用`,
+      price: discount.price,
+      originalPrice: service.basePrice,
+      discountType: discountType,
+      discountPercentage: discount.percentage,
+      serviceId: service.id
+    });
+    setShowOrderConfirmation(true);
   };
 
-  const handlePayment = () => {
-    // 決済処理のシミュレーション
-    setTimeout(() => {
-      setPaymentCompleted(true);
-      // 管理者画面に新着情報を送信（実際の実装ではAPI呼び出し）
-      console.log('決済完了:', selectedService);
-    }, 2000);
-  };
+
 
   const getDiscountBadge = (service, discountType, discount) => {
     if (!discount.enabled) {
@@ -220,93 +221,20 @@ const Discount = () => {
     );
   };
 
-  if (paymentCompleted) {
+  // 購入完了時の処理
+  const handleOrderComplete = (completedService) => {
+    // LINEメッセージ送信のシミュレーション
+    console.log('購入完了:', completedService);
+    // 実際の実装では、LINE Messaging APIを使用してメッセージを送信
+  };
+
+  if (showOrderConfirmation) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">お申込み完了</h2>
-          <p className="text-gray-600 mb-6">
-            お申込みおよび決済が完了しました。<br />
-            ご来院お待ちしております。
-          </p>
-          <button
-            onClick={() => navigate('/patient/richmenu')}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-          >
-            リッチメニューに戻る
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (showPayment) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-        {/* ヘッダー */}
-        <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setShowPayment(false)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6 text-gray-600" />
-            </button>
-            <h1 className="text-xl font-bold text-gray-800">決済</h1>
-            <div className="w-10"></div>
-          </div>
-        </div>
-
-        {/* 選択されたサービス情報 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">{selectedService.name}</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">通常価格</span>
-              <span className="text-gray-800 font-bold">¥{selectedService.basePrice.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">選択された価格</span>
-              <span className="text-green-600 font-bold text-lg">
-                ¥{selectedService.selectedDiscount.price.toLocaleString()}
-              </span>
-            </div>
-            <div className="text-sm text-green-600 text-center">
-              {selectedService.selectedDiscount.percentage}%OFF ({selectedService.selectedDiscount.timeSlot})
-            </div>
-          </div>
-        </div>
-
-        {/* 決済方法選択 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">決済方法</h3>
-          <div className="space-y-3">
-            <label className="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="credit"
-                checked={paymentMethod === 'credit'}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-              />
-              <div className="ml-3">
-                <div className="text-gray-800 font-medium">クレジットカード</div>
-                <div className="text-gray-600 text-sm">VISA, MasterCard, JCB対応</div>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        {/* 決済ボタン */}
-        <button
-          onClick={handlePayment}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl text-lg transition-colors shadow-lg"
-        >
-          決済を完了する
-        </button>
-      </div>
+      <OrderConfirmation
+        selectedItem={selectedService}
+        onBack={() => setShowOrderConfirmation(false)}
+        onComplete={handleOrderComplete}
+      />
     );
   }
 

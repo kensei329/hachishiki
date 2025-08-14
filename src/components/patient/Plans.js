@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Sparkles, Calculator } from 'lucide-react';
+import OrderConfirmation from './OrderConfirmation';
 
 const plans = [
   {
@@ -70,17 +71,42 @@ const freePlan = {
 const Plans = () => {
   const [selected, setSelected] = useState('basic');
   const [isYearly, setIsYearly] = useState(false);
+  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const navigate = useNavigate();
 
   const getPrice = (price) => isYearly ? price * 10 : price;
   const getPriceLabel = () => isYearly ? '年額（2ヶ月分お得）' : '月額';
 
   const handleJoin = (planId) => {
-    setSelected(planId);
-    setTimeout(() => {
-      navigate('/patient/richmenu');
-    }, 500);
+    const plan = plans.find(p => p.id === planId) || freePlan;
+    setSelectedPlan({
+      name: plan.name,
+      description: `歯知クラブ ${plan.name}プラン`,
+      price: getPrice(plan.price),
+      originalPrice: isYearly ? plan.price * 12 : null,
+      type: plan.id,
+      isYearly: isYearly
+    });
+    setShowOrderConfirmation(true);
   };
+
+  // 購入完了時の処理
+  const handleOrderComplete = (completedPlan) => {
+    // LINEメッセージ送信のシミュレーション
+    console.log('購入完了:', completedPlan);
+    // 実際の実装では、LINE Messaging APIを使用してメッセージを送信
+  };
+
+  if (showOrderConfirmation) {
+    return (
+      <OrderConfirmation
+        selectedItem={selectedPlan}
+        onBack={() => setShowOrderConfirmation(false)}
+        onComplete={handleOrderComplete}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-10 px-2">
